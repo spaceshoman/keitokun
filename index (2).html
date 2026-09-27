@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#7a1f35">
+<meta name="description" content="中央重賞の血統適性・馬場分析・馬券プラン">
+<meta property="og:title" content="血統くんの予想">
+<meta property="og:description" content="血統・馬場・馬券プランをレースごとに">
+<title>血統くんの予想</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=IBM+Plex+Mono:wght@500;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+html{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}
+:root{
+  --bg:#f6f0ef; --surface:#fffbfa; --sunk:#eee3e1; --ink:#26151a; --mute:#6f5a60; --line:#e3d4d2;
+  --turf:#7a1f35; --turf-soft:#f3e0e5; --red:#7a1f35; --red-soft:#f6e1e3; --amber:#9a6a12; --amber-soft:#f5ead3;
+  --good:#2f7a52; --good-soft:#e0efe6; --bad:#b4232c; --gold:#b08a3e;
+  --f1:#ffffff; --f1t:#1b1b1b; --f2:#1f1f1f; --f2t:#ffffff; --f3:#d62f2f; --f4:#2d62c8; --f5:#f0cf2e; --f5t:#1b1b1b; --f6:#2f9a4b; --f7:#ef8a1e; --f8:#ec7aa2;
+  --display:"Dela Gothic One","Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",sans-serif;
+  --body:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#150c0f; --surface:#201318; --sunk:#190f12; --ink:#f3e8ea; --mute:#ab969c; --line:#38252b;
+    --turf:#d9738b; --turf-soft:#3b1a24; --red:#d9738b; --red-soft:#3b1a20; --amber:#e3b25a; --amber-soft:#35290f;
+    --good:#7cc79c; --good-soft:#1b3326; --bad:#ff7a6e; --gold:#d8b46a;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#150c0f; --surface:#201318; --sunk:#190f12; --ink:#f3e8ea; --mute:#ab969c; --line:#38252b;
+  --turf:#d9738b; --turf-soft:#3b1a24; --red:#d9738b; --red-soft:#3b1a20; --amber:#e3b25a; --amber-soft:#35290f;
+  --good:#7cc79c; --good-soft:#1b3326; --bad:#ff7a6e; --gold:#d8b46a;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.65;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:760px;margin:0 auto}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--turf);outline-offset:2px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* ---------- top ---------- */
+.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-block:18px 10px}
+.brand{font-family:var(--display);font-size:22px;letter-spacing:.02em;margin:0;color:var(--turf)}
+.brand small{font-family:var(--body);font-weight:500;font-size:12px;color:var(--mute);margin-left:8px;letter-spacing:.08em}
+.sync{font-size:12px;color:var(--mute)}
+
+/* ---------- race rail ---------- */
+.rail{display:flex;gap:8px;overflow-x:auto;padding-block:4px 12px;scrollbar-width:thin}
+.rchip{flex:0 0 auto;display:grid;grid-template-columns:auto 1fr;column-gap:8px;align-items:center;text-align:left;
+  background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-width:150px}
+.rchip[aria-current="true"]{border-color:var(--turf);box-shadow:inset 0 0 0 1px var(--turf)}
+.rchip .rname{font-weight:700;font-size:14px;white-space:nowrap}
+.rchip .rmeta{grid-column:2;font-size:12px;color:var(--mute);white-space:nowrap}
+.grade{font-family:var(--mono);font-size:11px;font-weight:600;padding:1px 6px;border-radius:4px;border:1px solid currentColor;line-height:1.4}
+.g-G1{color:var(--turf)} .g-G2{color:var(--ink)} .g-G3{color:var(--gold)}
+.live{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);margin-right:5px;vertical-align:1px}
+
+/* ---------- race head ---------- */
+.head{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--turf);border-radius:14px;padding:18px;display:grid;gap:14px}
+.head h2{font-family:var(--display);font-weight:400;font-size:clamp(24px,6vw,34px);line-height:1.2;margin:0;text-wrap:balance}
+.meta{font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 14px}
+.trackbar{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+.cond{display:flex;align-items:center;gap:10px;background:var(--turf-soft);border-radius:10px;padding:8px 14px}
+.cond b{font-family:var(--display);font-weight:400;font-size:26px;line-height:1;color:var(--turf)}
+.cond span{font-size:12px;color:var(--mute);line-height:1.4}
+.biaspill{display:flex;flex-direction:column;justify-content:center;border:1px dashed var(--line);border-radius:10px;padding:8px 14px}
+.biaspill small{font-size:11px;color:var(--mute);letter-spacing:.08em}
+.biaspill strong{font-size:15px}
+
+/* ---------- tabs ---------- */
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--sunk);padding:5px;border-radius:12px;margin-block:16px}
+.tab{border:0;background:transparent;border-radius:9px;padding:10px 8px;font-weight:700;font-size:15px;color:var(--mute)}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.tab small{display:block;font-weight:500;font-size:11px}
+
+/* ---------- sections ---------- */
+.panel{display:grid;gap:22px;grid-template-columns:minmax(0,1fr)}
+.panel>*,.plan>*,.sec{min-width:0}
+.plan{grid-template-columns:minmax(0,1fr)}
+.sec h3{font-size:13px;letter-spacing:.12em;color:var(--mute);font-weight:700;margin:0 0 10px}
+.lead{font-size:15px;margin:0;max-width:62ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.list{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.impact li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap;line-height:1.6}
+.t-good{background:var(--good-soft);color:var(--good)} .t-bad{background:var(--red-soft);color:var(--bad)} .t-warn{background:var(--amber-soft);color:var(--amber)}
+
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{font-size:11px;letter-spacing:.06em;color:var(--mute);font-weight:700;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right;white-space:nowrap}
+.tip{font-size:13px;color:var(--mute);margin:8px 2px 0}
+
+.fc{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 4px;border-radius:5px;font-family:var(--mono);font-size:13px;font-weight:600;border:1px solid transparent;vertical-align:middle}
+.fr1{background:var(--f1);color:var(--f1t);border-color:#9aa39e} .fr2{background:var(--f2);color:var(--f2t)} .fr3{background:var(--f3);color:#fff} .fr4{background:var(--f4);color:#fff}
+.fr5{background:var(--f5);color:var(--f5t)} .fr6{background:var(--f6);color:#fff} .fr7{background:var(--f7);color:#fff} .fr8{background:var(--f8);color:#fff}
+.hname{display:flex;align-items:center;gap:8px;font-weight:700;white-space:nowrap}
+
+.rank{display:inline-grid;place-items:center;width:28px;height:24px;border-radius:5px;font-family:var(--mono);font-size:12px;font-weight:600;background:var(--sunk);color:var(--mute)}
+.rk-S{background:var(--turf);color:var(--surface)} .rk-A{background:var(--gold);color:#1e1406}
+.fit{font-weight:700} .fit-good{color:var(--good)} .fit-bad{color:var(--bad)}
+
+.cards2{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.pick h4{margin:0;display:flex;align-items:center;gap:8px;font-size:16px}
+.pick .lbl{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--turf)}
+.pick.danger .lbl{color:var(--bad)}
+.pick .odds{font-size:12px;color:var(--mute);margin:2px 0 8px}
+.pick ul{margin:0;padding-left:1.1em;font-size:13.5px}
+.pick p{margin:0;font-size:13.5px}
+
+/* ---------- betting ---------- */
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.segb{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700}
+.segb[aria-pressed="true"]{background:var(--turf);color:var(--surface);border-color:var(--turf)}
+.plan{display:grid;gap:12px}
+.axis{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
+.axis small{font-size:11px;letter-spacing:.1em;color:var(--mute);font-weight:700}
+.axis strong{font-family:var(--display);font-weight:400;font-size:22px}
+.axis .when{font-size:12px;color:var(--mute)}
+.legs{display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.legs .grp{display:inline-flex;flex-wrap:wrap;gap:3px;padding:2px;border-radius:6px}
+.legs .grp.multi{background:var(--sunk)}
+.legs .sep{color:var(--mute);font-size:12px;padding:0 2px}
+.ttype{font-weight:700;white-space:nowrap}
+.ttype small{display:block;font-weight:500;font-size:11px;color:var(--mute)}
+.total td{font-weight:700;background:var(--sunk)}
+.mk{font-size:18px;color:var(--red);font-weight:700;width:28px;text-align:center}
+.ev{font-size:11px;font-weight:700;color:var(--amber);background:var(--amber-soft);border-radius:999px;padding:1px 7px;margin-left:6px;white-space:nowrap}
+.bar{height:5px;background:var(--sunk);border-radius:3px;overflow:hidden;margin-top:4px;min-width:60px}
+.bar i{display:block;height:100%;background:var(--turf)}
+
+.mybets form{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;align-items:end}
+.mybets label{display:grid;gap:3px;font-size:12px;color:var(--mute);font-weight:500}
+.mybets input,.mybets select,.mybets textarea{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-width:0}
+.mybets .wide{grid-column:span 2}
+.btn{border:0;border-radius:8px;padding:9px 14px;font-weight:700;background:var(--turf);color:var(--surface)}
+.btn.ghost{background:transparent;color:var(--turf);border:1px solid var(--turf)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.del{border:0;background:transparent;color:var(--mute);font-size:13px;padding:2px 6px;border-radius:6px}
+.del:hover{color:var(--bad);background:var(--red-soft)}
+.rowact{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.saved{font-size:12px;color:var(--mute)}
+.empty{color:var(--mute);font-size:14px;padding:14px;text-align:center}
+.notice{background:var(--amber-soft);color:var(--ink);border-radius:10px;padding:10px 14px;font-size:13.5px}
+.skel{height:14px;background:var(--sunk);border-radius:6px}
+.bline{display:grid;grid-template-columns:minmax(110px,max-content) 1fr;gap:4px 14px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line)}
+.bline:last-child{border-bottom:0}
+.bline dt{font-weight:700;display:flex;align-items:center;gap:6px}
+.bline dd{margin:0;font-size:14px}
+.sire{white-space:nowrap;font-weight:700}
+.prof{display:block;font-size:11.5px;color:var(--mute);font-weight:500;white-space:nowrap}
+.apt{display:flex;align-items:center;gap:8px;min-width:110px}
+.apt b{font-family:var(--mono);font-size:16px;width:2.2em;text-align:right}
+.apt .bar{flex:1;margin:0}
+.bnote{font-size:12.5px;color:var(--mute);min-width:180px}
+.bnote .g{color:var(--good)} .bnote .x{color:var(--bad)}
+@media (max-width:520px){.bline{grid-template-columns:1fr}.tab small{display:none}}
+@media (max-width:520px){
+  .mybets form{grid-template-columns:1fr 1fr}
+  .mybets .wide{grid-column:1/-1}
+  .hide-sm{display:none}
+}
+@media (prefers-reduced-motion:no-preference){ .panel{animation:fade .18s ease-out} @keyframes fade{from{opacity:.4}to{opacity:1}} }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <h1 class="brand">血統くん<small>馬場と馬券</small></h1>
+    <span class="sync" id="sync">読み込み中…</span>
+  </header>
+  <nav class="rail" id="rail" aria-label="レースを選ぶ"></nav>
+  <section class="head" id="head">
+    <div class="skel" style="width:40%"></div><div class="skel" style="width:70%;height:26px"></div><div class="skel" style="width:55%"></div>
+  </section>
+  <div class="tabs" role="tablist" id="tabs">
+    <button class="tab" role="tab" id="tab-blood" aria-selected="false" data-tab="blood">血統<small>父・母父の適性</small></button>
+    <button class="tab" role="tab" id="tab-track" aria-selected="true" data-tab="track">馬場<small>バイアスと各馬の適性</small></button>
+    <button class="tab" role="tab" id="tab-bet" aria-selected="false" data-tab="bet">馬券<small>推奨プランと印</small></button>
+  </div>
+  <main class="panel" id="panel"></main>
+</div>
+
+<script type="application/json" id="kk-data">[{"id": "sprinters2026", "grade": "G1", "name": "スプリンターズS", "fullName": "第60回 スプリンターズステークス", "date": "2026-09-27", "dow": "日", "post": "15:40", "venue": "中山", "course": "芝1200m（外）", "field": 16, "status": "open", "track": {"cond": "稍重", "weather": "曇", "asOf": "9/27（日）7:00 JRA発表・クッション値8.6（標準）・含水率13.2〜13.7%", "biasLabel": "先行やや有利（内の有利は弱まる）"}, "marks": [{"num": 13, "frame": 7, "name": "パンジャタワー", "pop": 2, "tan": 5.3, "style": "先行", "jockey": "松山弘平", "mark": "◎", "score": 66.3, "winPct": 21.2, "place3Pct": 52.1, "ev": 1.12}, {"num": 3, "frame": 2, "name": "ママコチャ", "pop": 7, "tan": 17.2, "style": "先行", "jockey": "武豊", "mark": "○", "score": 65.0, "winPct": 16.1, "place3Pct": 40.1, "ev": 2.77}, {"num": 15, "frame": 8, "name": "フリッカージャブ", "pop": 3, "tan": 6.8, "style": "先行", "jockey": "西村淳也", "mark": "▲", "score": 64.6, "winPct": 15.4, "place3Pct": 42.8, "ev": 1.05}, {"num": 6, "frame": 3, "name": "ワールズエンド", "pop": 5, "tan": 11.1, "style": "逃げ", "jockey": "津村明秀", "mark": "△", "score": 62.1, "winPct": 8.9, "place3Pct": 31.0, "ev": 0.99}, {"num": 5, "frame": 3, "name": "サウンドモリアーナ", "pop": 12, "tan": 27.5, "style": "先行", "jockey": "吉田隼人", "mark": "△", "score": 61.3, "winPct": 9.0, "place3Pct": 27.3, "ev": 2.48}, {"num": 4, "frame": 2, "name": "ジューンブレア", "pop": 13, "tan": 29.6, "style": "先行", "jockey": "坂井瑠星", "mark": "", "score": 60.3, "winPct": 8.4, "place3Pct": 23.8, "ev": 2.49}, {"num": 14, "frame": 7, "name": "ウインカーネリアン", "pop": 6, "tan": 12.2, "style": "逃げ", "jockey": "三浦皇成", "mark": "", "score": 59.6, "winPct": 6.1, "place3Pct": 19.6, "ev": 0.74}, {"num": 11, "frame": 6, "name": "ルガル", "pop": 4, "tan": 9.5, "style": "先行", "jockey": "鮫島克駿", "mark": "", "score": 58.6, "winPct": 4.2, "place3Pct": 15.5, "ev": 0.4}, {"num": 9, "frame": 5, "name": "スターアニス", "pop": 1, "tan": 3.9, "style": "差し", "jockey": "C.ルメール", "mark": "", "score": 57.8, "winPct": 3.5, "place3Pct": 14.6, "ev": 0.14}, {"num": 16, "frame": 8, "name": "ピューロマジック", "pop": 8, "tan": 17.2, "style": "逃げ", "jockey": "岩田望来", "mark": "", "score": 57.4, "winPct": 3.8, "place3Pct": 14.1, "ev": 0.65}, {"num": 10, "frame": 5, "name": "レイピア", "pop": 9, "tan": 17.3, "style": "差し", "jockey": "横山武史", "mark": "", "score": 56.2, "winPct": 1.5, "place3Pct": 9.6, "ev": 0.26}, {"num": 7, "frame": 4, "name": "ペアポルックス", "pop": 11, "tan": 27.4, "style": "差し", "jockey": "岩田康誠", "mark": "", "score": 51.5, "winPct": 0.8, "place3Pct": 4.3, "ev": 0.22}, {"num": 1, "frame": 1, "name": "レッドモンレーヴ", "pop": 14, "tan": 34.2, "style": "追込", "jockey": "酒井学", "mark": "", "score": 50.4, "winPct": 0.6, "place3Pct": 2.8, "ev": 0.21}, {"num": 8, "frame": 4, "name": "エーティーマクフィ", "pop": 10, "tan": 21.7, "style": "差し", "jockey": "富田暁", "mark": "", "score": 48.1, "winPct": 0.4, "place3Pct": 1.2, "ev": 0.09}, {"num": 2, "frame": 1, "name": "アイサンサン", "pop": 15, "tan": 48.5, "style": "逃げ", "jockey": "幸英明", "mark": "", "score": 45.1, "winPct": 0.1, "place3Pct": 0.9, "ev": 0.05}, {"num": 12, "frame": 6, "name": "ブラックチャリス", "pop": 16, "tan": 62.8, "style": "逃げ", "jockey": "浜中俊", "mark": "", "score": 45, "winPct": 0.0, "place3Pct": 0.3, "ev": 0.0}], "trackNote": "今朝の中山は芝・稍重まで回復。クッション値8.6は標準で、含水率13.2〜13.7%は良との境目に近い。今日は雨がなく、15:40の発走までさらに乾く見込み。昨日（重）は1〜2枠と前の馬が独占したが、回復で内の有利は弱まり、地力とスピードの比重が上がる。Cコース替わりでも3コーナーから直線の内側に傷みがあり、内を通るだけでは有利にならない。差し・追込が届きにくいことは変わらないので、好位で運べる地力上位馬を中心にする。", "bias": "重（曇）", "prevRaces": [{"name": "10R 勝浦特別（2勝C）", "dist": "芝1200m外", "cond": "重", "time": "1:09.7", "pace": "前傾（前半3F 34.0／後半3F 35.7）", "tip": "1〜4着が馬番1〜4。1番人気ドリーミングアップ（4角16番手）は9着、上がり最速の差し馬ビッグフラワー（ルメール騎手）も6着。", "results": [{"rank": 1, "name": "ジョヴィアン", "style": "差し", "pos": "4角6番手", "agari": 35.0, "note": "4番・11人気。父Justify"}, {"rank": 2, "name": "ウィングブルー", "style": "先行", "pos": "4角3番手", "agari": 35.3, "note": "3番・5人気"}, {"rank": 3, "name": "イゾラフェリーチェ", "style": "逃げ", "pos": "4角1番手", "agari": 35.9, "note": "2番・2人気"}, {"rank": 4, "name": "デンプシー", "style": "差し", "pos": "4角8番手", "agari": 35.1, "note": "1番・4人気"}, {"rank": 5, "name": "ピコアーガイル", "style": "先行", "pos": "4角2番手", "agari": 35.8, "note": "16番・8人気（外枠でも前なら残る）"}]}], "conditionChange": [{"item": "時計", "good": "1:06〜1:08の高速決着", "heavy": "1:08〜1:09台にかかる"}, {"item": "脚質", "good": "逃げ・先行が有利", "heavy": "前日は内の好位〜前が独占。後方一気は全滅"}, {"item": "血統", "good": "スピード型（ロードカナロア・タワーオブロンドン）", "heavy": "パワー型（クロフネ・ドレフォン・アジアエクスプレス）"}, {"item": "道悪実績", "good": "不問", "heavy": "フリッカージャブ(北九州記念・重1着)・ママコチャ(ダート重賞好走)・ピューロマジック(函館SS・稍重1着)"}, {"item": "枠", "good": "1〜5枠有利", "heavy": "前日は1〜2枠が1〜4着独占。外枠は前に行けないと厳しい"}], "matrix": [{"name": "ママコチャ", "num": 3, "pop": 7, "frame": "2枠", "style": "先行", "heavy": "◎", "sashi": "◎", "data": "2枠×先行×重◎×23年覇者。前日バイアスにぴったり", "rank": "S"}, {"name": "フリッカージャブ", "num": 15, "pop": 3, "frame": "8枠", "style": "先行", "heavy": "◎", "sashi": "○", "data": "道悪実績◎だが8枠。前につければ残せる", "rank": "A"}, {"name": "パンジャタワー", "num": 13, "pop": 2, "frame": "7枠", "style": "先行", "heavy": "○", "sashi": "○", "data": "G1馬の地力。7枠から好位を取れるか", "rank": "A"}, {"name": "ジューンブレア", "num": 4, "pop": 13, "frame": "2枠", "style": "先行", "heavy": "○", "sashi": "◎", "data": "2枠×先行×昨年2着。前日の勝ち馬と同じ4番", "rank": "A-"}, {"name": "ワールズエンド", "num": 6, "pop": 5, "frame": "3枠", "style": "逃げ", "heavy": "△", "sashi": "○", "data": "3枠から逃げ・先行できれば", "rank": "B+"}, {"name": "サウンドモリアーナ", "num": 5, "pop": 12, "frame": "3枠", "style": "先行", "heavy": "△", "sashi": "○", "data": "3枠×先行。道悪実績は不安", "rank": "B+"}, {"name": "スターアニス", "num": 9, "pop": 1, "frame": "5枠", "style": "差し", "heavy": "○", "sashi": "△", "data": "差し脚質は前日の傾向と逆。初1200m", "rank": "B-"}, {"name": "レッドモンレーヴ", "num": 1, "pop": 14, "frame": "1枠", "style": "追込", "heavy": "△", "sashi": "×", "data": "内枠でも追込は届かない", "rank": "C"}], "pickup": [{"name": "パンジャタワー", "num": 13, "pop": 2, "odds": 5.3, "label": "今日の本命", "color": "#7a1f35", "reasons": ["G1馬の地力。高松宮記念4着・キーンランドC2着で1200mに対応済み", "馬場回復でスピードが活きる", "松山騎手が3頭から選んだ", "シミュ勝率21.2%で1位・複勝率52%"]}, {"name": "ママコチャ", "num": 3, "pop": 7, "odds": 17.2, "label": "妙味の筆頭", "color": "#b08a3e", "reasons": ["2023年覇者のリピーター", "2枠・先行・武豊騎手", "稍重なら道悪巧者の強みも残る", "シミュ期待値2.77で全馬トップクラス"]}, {"name": "サウンドモリアーナ", "num": 5, "pop": 12, "odds": 27.5, "label": "穴", "color": "#b08a3e", "reasons": ["キーンランドCでパンジャタワーに勝った", "3枠・先行", "馬場回復は道悪不安の解消につながる", "シミュ期待値2.48"]}], "danger": [{"name": "スターアニス", "num": 9, "pop": 1, "odds": 3.9, "note": "前日は差し・追込が届かず、1番人気の追込馬も9着。初1200mの差し馬には逆風。シミュ複勝率11.6%まで下がった。"}, {"name": "ルガル", "num": 11, "pop": 4, "odds": 9.5, "note": "6枠【0.1.1.38】・4番人気【0.0.1.19】に加え、内有利の前日傾向とも逆。"}], "impact": ["🟢 稍重（良寄り）でスピードと地力が活きる → パンジャタワー・フリッカージャブ", "🟢 先行・好位はまだ有利 → ママコチャ・ワールズエンド・サウンドモリアーナ", "🟡 昨日ほどの内枠独占は起きにくい（馬場回復・内側に傷み）", "🟡 良まで回復すれば重の巧者（ママコチャ・フリッカージャブ）の上積みは小さくなる", "🔴 差し・追込は届きにくいまま → スターアニス・レイピア・レッドモンレーヴ", "⚠️ 発走直前の馬場発表（良／稍重）を確認。良なら『良に回復』プランへ"], "plans": [{"id": "yaya", "label": "稍重（今日）", "when": "今朝の発表：芝・稍重", "axis": "13 パンジャタワー", "why": "稍重まで回復し、昨日ほど内枠と道悪巧者に偏らない。地力上位で好位から運べるパンジャタワーを軸に、妙味の大きいママコチャは単勝でも押さえる。", "tickets": [{"type": "単勝", "legs": [[13]], "points": 1, "unit": 1000}, {"type": "単勝", "legs": [[3]], "points": 1, "unit": 500}, {"type": "ワイド", "form": "流し", "legs": [[13], [3, 15, 6, 5]], "points": 4, "unit": 200}, {"type": "3連複", "form": "フォーメーション", "legs": [[13], [3, 15, 6], [3, 15, 6, 5, 4, 9]], "points": 12, "unit": 100}]}, {"id": "heavy", "label": "重のまま", "when": "芝が重〜稍重なら", "axis": "3 ママコチャ", "why": "前日の同条件（勝浦特別）は1〜2枠が1〜4着を独占。2枠・先行・道悪巧者・23年覇者のママコチャを軸に、地力上位の2頭と内枠の穴へ。", "tickets": [{"type": "単勝", "legs": [[3]], "points": 1, "unit": 1000}, {"type": "複勝", "legs": [[3]], "points": 1, "unit": 500}, {"type": "ワイド", "form": "流し", "legs": [[3], [13, 15, 4, 6]], "points": 4, "unit": 200}, {"type": "3連複", "form": "フォーメーション", "legs": [[3], [13, 15, 4], [13, 15, 4, 6, 5, 9]], "points": 12, "unit": 100}]}, {"id": "good", "label": "良に回復", "when": "日曜朝に良まで回復したら", "axis": "13 パンジャタワー", "why": "良なら内枠有利が弱まり、スピードと地力の勝負。G1馬で1200mにも対応済みのパンジャタワーを軸に。ママコチャは複勝で押さえる。", "tickets": [{"type": "単勝", "legs": [[13]], "points": 1, "unit": 1000}, {"type": "複勝", "legs": [[3]], "points": 1, "unit": 500}, {"type": "ワイド", "form": "流し", "legs": [[13], [15, 3, 6, 9]], "points": 4, "unit": 200}, {"type": "3連複", "form": "フォーメーション", "legs": [[13], [15, 3, 6], [15, 3, 6, 9, 4, 5]], "points": 12, "unit": 100}]}], "order": 3, "blood": {"condition": "中山 芝1200m・重", "tip": "フォーティナイナー系とDanzigの血が伝統的に強いレース。今年は直系の出走がないため、同コース実績上位のロードカナロア・ミッキーアイル・スクリーンヒーローと、道悪で効くパワー血統を重視。", "lines": [{"label": "ロードカナロア", "val": "中山芝1200で最多13勝 → ワールズエンド・レッドモンレーヴ", "hl": true}, {"label": "ミッキーアイル", "val": "同コース8勝・複勝率28% → サウンドモリアーナ", "hl": false}, {"label": "スクリーンヒーロー", "val": "同コース単回255% → ウインカーネリアン", "hl": true}, {"label": "クロフネ", "val": "芝ダ兼用のパワー型で道悪◎ → ママコチャ", "hl": false}, {"label": "タワーオブロンドン", "val": "スプリント専業の父 → パンジャタワー・レイピア", "hl": false}], "horses": [{"num": 9, "frame": 5, "name": "スターアニス", "sire": "ドレフォン", "bms": "ダイワメジャー", "score": 54, "sireScore": 54, "bmsScore": 54, "sireProfile": {"surface": "芝ダ", "dist": "短〜マ", "heavy": 7, "speed": 9, "power": 9, "stamina": 6, "growth": "EARLY", "notes": "BCスプリント優勝。ストームキャット系。スターアニス(桜花賞)等輩出。芝ダート兼用でパワー型。気性の前向きさが強く2400m以上は大幅距離不安（スターアニス2026オークス12着で実証）。"}, "bmsProfile": {"surface": "芝", "dist": "短〜マ", "heavy": 5, "speed": 9, "power": 8, "stamina": 6, "growth": "EARLY", "notes": "マイル王。先行力のある産駒多い。"}, "good": ["父の距離：適性範囲の端", "父のコース：完全一致", "父の成長：早熟×3歳"], "bad": []}, {"num": 5, "frame": 3, "name": "サウンドモリアーナ", "sire": "ミッキーアイル", "bms": "ケイムホーム", "score": 48, "sireScore": 48, "bmsScore": null, "sireProfile": {"surface": "芝", "dist": "短〜マ", "heavy": 3, "speed": 9, "power": 6, "stamina": 4, "growth": "EARLY", "notes": "NHKマイルC・マイルCS優勝。スピード特化型。"}, "bmsProfile": null, "good": ["父の馬場：完全一致", "父の距離：適性範囲の端"], "bad": ["父の馬場状態：重適性3/10"]}, {"num": 10, "frame": 5, "name": "レイピア", "sire": "タワーオブロンドン", "bms": "エンパイアメーカー", "score": 47, "sireScore": 51, "bmsScore": 38, "sireProfile": {"surface": "芝", "dist": "短〜短", "heavy": 4, "speed": 10, "power": 7, "stamina": 4, "growth": "EARLY", "notes": "スプリンターズS優勝。スプリント特化型。"}, "bmsProfile": {"surface": "芝ダ", "dist": "マ〜中", "heavy": 7, "speed": 8, "power": 8, "stamina": 7, "growth": "NORMAL", "notes": "ベルモントS優勝。芝ダート兼用の万能型母父として日本で活躍。"}, "good": ["父の馬場：完全一致", "父の距離：距離ど真ん中◎"], "bad": ["父の馬場状態：重適性4/10"]}, {"num": 13, "frame": 7, "name": "パンジャタワー", "sire": "タワーオブロンドン", "bms": "ヴィクトワールピサ", "score": 47, "sireScore": 51, "bmsScore": 37, "sireProfile": {"surface": "芝", "dist": "短〜短", "heavy": 4, "speed": 10, "power": 7, "stamina": 4, "growth": "EARLY", "notes": "スプリンターズS優勝。スプリント特化型。"}, "bmsProfile": {"surface": "芝ダ", "dist": "マ〜中", "heavy": 6, "speed": 7, "power": 7, "stamina": 7, "growth": "NORMAL", "notes": "ドバイWC優勝馬。芝ダート兼用。"}, "good": ["父の馬場：完全一致", "父の距離：距離ど真ん中◎"], "bad": ["父の馬場状態：重適性4/10"]}, {"num": 7, "frame": 4, "name": "ペアポルックス", "sire": "キンシャサノキセキ", "bms": "ディープインパクト", "score": 45, "sireScore": 50, "bmsScore": 36, "sireProfile": {"surface": "芝", "dist": "短〜マ", "heavy": 6, "speed": 9, "power": 7, "stamina": 4, "growth": "NORMAL", "notes": "高松宮記念連覇の短距離王。産駒は芝1200〜1400で活躍し、道悪もこなす。（推定値）"}, "bmsProfile": {"surface": "芝", "dist": "マ〜長", "heavy": 2, "speed": 9, "power": 6, "stamina": 8, "growth": "NORMAL", "notes": "日本競馬史上最高の種牡馬。芝中長距離で圧倒的。瞬発力に優れた産駒多数。"}, "good": ["父の馬場：完全一致", "父の距離：適性範囲の端"], "bad": []}, {"num": 1, "frame": 1, "name": "レッドモンレーヴ", "sire": "ロードカナロア", "bms": "ディープインパクト", "score": 42, "sireScore": 45, "bmsScore": 36, "sireProfile": {"surface": "芝", "dist": "短〜マ", "heavy": 4, "speed": 10, "power": 7, "stamina": 5, "growth": "EARLY", "notes": "スプリント〜マイルの絶対王者。アーモンドアイ等輩出。"}, "bmsProfile": {"surface": "芝", "dist": "マ〜長", "heavy": 2, "speed": 9, "power": 6, "stamina": 8, "growth": "NORMAL", "notes": "日本競馬史上最高の種牡馬。芝中長距離で圧倒的。瞬発力に優れた産駒多数。"}, "good": ["父の馬場：完全一致", "父の距離：適性範囲の端"], "bad": ["父の馬場状態：重適性4/10", "父の成長：早熟×7歳"]}, {"num": 3, "frame": 2, "name": "ママコチャ", "sire": "クロフネ", "bms": "キングカメハメハ", "score": 42, "sireScore": 43, "bmsScore": 42, "sireProfile": {"surface": "芝ダ", "dist": "短〜マ", "heavy": 8, "speed": 9, "power": 8, "stamina": 5, "growth": "EARLY", "notes": "芝ダート兼用。ホエールキャプチャ等輩出。"}, "bmsProfile": {"surface": "芝ダ", "dist": "短〜中", "heavy": 7, "speed": 8, "power": 9, "stamina": 7, "growth": "EARLY", "notes": "芝ダート兼用の万能種牡馬。パワーとスピードの両立。重馬場にも強い。"}, "good": ["父の距離：適性範囲の端"], "bad": ["父の成長：早熟×7歳"]}, {"num": 6, "frame": 3, "name": "ワールズエンド", "sire": "ロードカナロア", "bms": "ゼンノロブロイ", "score": 42, "sireScore": 45, "bmsScore": 35, "sireProfile": {"surface": "芝", "dist": "短〜マ", "heavy": 4, "speed": 10, "power": 7, "stamina": 5, "growth": "EARLY", "notes": "スプリント〜マイルの絶対王者。アーモンドアイ等輩出。"}, "bmsProfile": {"surface": "芝", "dist": "中〜長", "heavy": 6, "speed": 6, "power": 6, "stamina": 7, "growth": "NORMAL", "notes": "2004年秋古馬三冠。スタミナ型中長距離馬。母父として安定したスタミナを供給。"}, "good": ["父の馬場：完全一致", "父の距離：適性範囲の端"], "bad": ["父の馬場状態：重適性4/10", "父の成長：早熟×5歳"]}, {"num": 8, "frame": 4, "name": "エーティーマクフィ", "sire": "マクフィ", "bms": "ハーツクライ", "score": 42, "sireScore": 44, "bmsScore": 35, "sireProfile": {"surface": "芝ダ", "dist": "短〜マ", "heavy": 6, "speed": 8, "power": 7, "stamina": 5, "growth": "NORMAL", "notes": "仏2000ギニー馬。芝短距離とダートの両方で産駒が走る。（推定値）"}, "bmsProfile": {"surface": "芝", "dist": "中〜長", "heavy": 5, "speed": 7, "power": 7, "stamina": 9, "growth": "LATE", "notes": "晩成型の中長距離種牡馬。東京コース（左回り）に強い。"}, "good": ["父の距離：適性範囲の端"], "bad": []}, {"num": 14, "frame": 7, "name": "ウインカーネリアン", "sire": "スクリーンヒーロー", "bms": "マイネルラヴ", "score": 42, "sireScore": 42, "bmsScore": null, "sireProfile": {"surface": "芝", "dist": "マ〜中", "heavy": 5, "speed": 7, "power": 8, "stamina": 7, "growth": "LATE", "notes": "JC優勝。モーリスの父。ロベルト系のパワー型。晩成。"}, "bmsProfile": null, "good": ["父の馬場：完全一致", "父の成長：晩成×9歳"], "bad": ["父の距離：やや範囲外", "父の馬場状態：重適性5/10"]}, {"num": 12, "frame": 6, "name": "ブラックチャリス", "sire": "キタサンブラック", "bms": "トゥザワールド", "score": 41, "sireScore": 42, "bmsScore": 41, "sireProfile": {"surface": "芝", "dist": "マ〜長", "heavy": 6, "speed": 8, "power": 8, "stamina": 9, "growth": "NORMAL", "notes": "年度代表馬2回。イクイノックスを輩出した大種牡馬。万能型。"}, "bmsProfile": {"surface": "芝", "dist": "マ〜中", "heavy": 5, "speed": 7, "power": 8, "stamina": 7, "growth": "NORMAL", "notes": "弥生賞優勝・皐月賞2着・有馬記念2着。キングカメハメハ×サンデーサイレンスの配合。"}, "good": ["父の馬場：完全一致", "父の成長：普通×3歳"], "bad": ["父の距離：やや範囲外"]}, {"num": 15, "frame": 8, "name": "フリッカージャブ", "sire": "サートゥルナーリア", "bms": "サクラバクシンオー", "score": 41, "sireScore": 37, "bmsScore": 51, "sireProfile": {"surface": "芝", "dist": "マ〜中", "heavy": 4, "speed": 9, "power": 8, "stamina": 7, "growth": "EARLY", "notes": "皐月賞・ホープフルS制覇。エピファネイアの半弟。ロードカナロア×シーザリオの黄金配合。"}, "bmsProfile": {"surface": "芝", "dist": "短〜短", "heavy": 4, "speed": 10, "power": 6, "stamina": 3, "growth": "EARLY", "notes": "スプリントの絶対王者。産駒もスプリント〜マイルに集中。"}, "good": ["父の馬場：完全一致"], "bad": ["父の距離：やや範囲外", "父の馬場状態：重適性4/10"]}, {"num": 2, "frame": 1, "name": "アイサンサン", "sire": "キズナ", "bms": "シンボリクリスエス", "score": 40, "sireScore": 41, "bmsScore": 39, "sireProfile": {"surface": "芝", "dist": "マ〜中", "heavy": 5, "speed": 8, "power": 7, "stamina": 8, "growth": "NORMAL", "notes": "ダービー馬。ディープ後継。ソングライン等輩出。ドリームコア(2026オークス2着)で東京芝2400m適性を実証。左回り中距離での持続力に定評。"}, "bmsProfile": {"surface": "芝", "dist": "中〜長", "heavy": 5, "speed": 7, "power": 8, "stamina": 8, "growth": "NORMAL", "notes": "有馬記念連覇。エピファネイア等輩出。"}, "good": ["父の馬場：完全一致", "父の成長：普通×4歳"], "bad": ["父の距離：やや範囲外", "父の馬場状態：重適性5/10"]}, {"num": 11, "frame": 6, "name": "ルガル", "sire": "ドゥラメンテ", "bms": "New Approach", "score": 38, "sireScore": 38, "bmsScore": null, "sireProfile": {"surface": "芝", "dist": "マ〜中", "heavy": 5, "speed": 9, "power": 8, "stamina": 7, "growth": "NORMAL", "notes": "二冠馬。キンカメ×SSの黄金配合。タイトルホルダー等輩出。"}, "bmsProfile": null, "good": ["父の馬場：完全一致"], "bad": ["父の距離：やや範囲外", "父の馬場状態：重適性5/10"]}, {"num": 4, "frame": 2, "name": "ジューンブレア", "sire": "American Pharoah", "bms": "Galileo", "score": 34, "sireScore": 33, "bmsScore": 36, "sireProfile": {"surface": "芝ダ", "dist": "マ〜長", "heavy": 6, "speed": 8, "power": 9, "stamina": 9, "growth": "NORMAL", "notes": "米三冠馬(2015)。BCクラシック優勝。距離万能のスーパーホース。種牡馬としても世界的に成功。"}, "bmsProfile": {"surface": "芝", "dist": "中〜長", "heavy": 7, "speed": 7, "power": 7, "stamina": 9, "growth": "NORMAL", "notes": "欧州最強種牡馬。Sadler's Wells系。スタミナ型長距離。母父として日本でも長距離スタミナを供給。"}, "good": [], "bad": ["父の距離：やや範囲外"]}, {"num": 16, "frame": 8, "name": "ピューロマジック", "sire": "アジアエクスプレス", "bms": "ディープインパクト", "score": 33, "sireScore": 32, "bmsScore": 36, "sireProfile": {"surface": "ダ", "dist": "短〜マ", "heavy": 8, "speed": 9, "power": 8, "stamina": 5, "growth": "EARLY", "notes": "朝日杯FS優勝。ヘニーヒューズ産駒。ダート短距離型。"}, "bmsProfile": {"surface": "芝", "dist": "マ〜長", "heavy": 2, "speed": 9, "power": 6, "stamina": 8, "growth": "NORMAL", "notes": "日本競馬史上最高の種牡馬。芝中長距離で圧倒的。瞬発力に優れた産駒多数。"}, "good": ["父の距離：適性範囲の端"], "bad": ["父の馬場：不適合", "父の成長：早熟×5歳"]}]}}, {"id": "siriusS2026", "grade": "G3", "name": "シリウスS", "fullName": "第30回 シリウスステークス", "date": "2026-09-26", "dow": "土", "post": "15:45", "venue": "阪神", "course": "ダ2000m", "field": 16, "status": "done", "track": {"cond": "重（想定）", "weather": "雨予報", "asOf": "9/25（金）時点の想定", "biasLabel": "先行有利（想定）"}, "marks": [{"num": 14, "frame": 7, "name": "ラムジェット", "pop": 2, "tan": 5.0, "style": "差し", "jockey": "三浦皇成", "mark": "◎", "score": 95, "winPct": 55.2, "place3Pct": 85.1, "ev": 2.76}, {"num": 5, "frame": 3, "name": "サイモンザナドゥ", "pop": 4, "tan": 11.0, "style": "先行", "jockey": "川田将雅", "mark": "○", "score": 89.6, "winPct": 24.4, "place3Pct": 66.4, "ev": 2.68}, {"num": 11, "frame": 6, "name": "マイノワール", "pop": 8, "tan": 19.5, "style": "差し", "jockey": "浜中俊", "mark": "▲", "score": 81.9, "winPct": 5.5, "place3Pct": 28.5, "ev": 1.07}, {"num": 15, "frame": 8, "name": "リアレスト", "pop": 6, "tan": 15.5, "style": "先行", "jockey": "荻野極", "mark": "△", "score": 80.5, "winPct": 3.3, "place3Pct": 23.0, "ev": 0.51}, {"num": 7, "frame": 4, "name": "ゼットリアン", "pop": 7, "tan": 16.5, "style": "先行", "jockey": "松若風馬", "mark": "△", "score": 80.4, "winPct": 2.7, "place3Pct": 20.7, "ev": 0.45}, {"num": 9, "frame": 5, "name": "ダブルジョーク", "pop": 11, "tan": 36.5, "style": "差し", "jockey": "池添謙一", "mark": "", "score": 79.2, "winPct": 3.2, "place3Pct": 18.0, "ev": 1.17}, {"num": 10, "frame": 5, "name": "ハピ", "pop": 10, "tan": 26.5, "style": "差し", "jockey": "幸英明", "mark": "", "score": 77.4, "winPct": 1.2, "place3Pct": 12.3, "ev": 0.32}, {"num": 16, "frame": 8, "name": "ルシュヴァルドール", "pop": 5, "tan": 13.5, "style": "先行", "jockey": "坂井瑠星", "mark": "", "score": 77.4, "winPct": 0.8, "place3Pct": 11.4, "ev": 0.11}, {"num": 3, "frame": 2, "name": "カズタンジャー", "pop": 3, "tan": 8.5, "style": "先行", "jockey": "西村淳也", "mark": "", "score": 76.2, "winPct": 0.9, "place3Pct": 9.0, "ev": 0.08}, {"num": 4, "frame": 2, "name": "ギュルヴィ", "pop": 1, "tan": 4.0, "style": "差し", "jockey": "武豊", "mark": "", "score": 75.6, "winPct": 1.0, "place3Pct": 8.3, "ev": 0.04}, {"num": 8, "frame": 4, "name": "ダイシンピスケス", "pop": 15, "tan": 110.0, "style": "差し", "jockey": "松本大輝", "mark": "", "score": 74.3, "winPct": 0.3, "place3Pct": 5.7, "ev": 0.33}, {"num": 1, "frame": 1, "name": "ヴァルツァーシャル", "pop": 9, "tan": 23.0, "style": "差し", "jockey": "斎藤新", "mark": "", "score": 72.4, "winPct": 0.6, "place3Pct": 3.9, "ev": 0.14}, {"num": 13, "frame": 7, "name": "メイショウズイウン", "pop": 13, "tan": 28.5, "style": "先行", "jockey": "石橋脩", "mark": "", "score": 71.3, "winPct": 0.3, "place3Pct": 3.3, "ev": 0.09}, {"num": 2, "frame": 1, "name": "オニャンコポン", "pop": 12, "tan": 46.0, "style": "先行", "jockey": "M.デムーロ", "mark": "", "score": 69.7, "winPct": 0.4, "place3Pct": 2.4, "ev": 0.18}, {"num": 6, "frame": 3, "name": "ジューンアヲニヨシ", "pop": 14, "tan": 95.0, "style": "追込", "jockey": "富田暁", "mark": "", "score": 69.1, "winPct": 0.2, "place3Pct": 1.7, "ev": 0.19}, {"num": 12, "frame": 6, "name": "ミッキークレスト", "pop": 16, "tan": 150.0, "style": "追込", "jockey": "酒井学", "mark": "", "score": 64.0, "winPct": 0.0, "place3Pct": 0.3, "ev": 0.0}], "trackNote": "明日26日は雨予報で阪神ダートは重馬場想定。ダート重馬場は時計が出やすくパワー＋前有利がさらに強まる。米国ダート系（マジェスティックウォリアー・ヘニーヒューズ・Nyquist）や、母父ゴールドアリュール系のパワー血統に追い風。追込一本型は届きにくく減点。", "bias": "重（雨予報）", "prevRaces": [], "conditionChange": [{"item": "馬場", "good": "良なら時計標準", "heavy": "重・不良で時計出やすく前有利"}, {"item": "脚質", "good": "先行~差しがバランス", "heavy": "先行有利がさらに強まる"}, {"item": "血統", "good": "日本型ダート血統も可", "heavy": "米国ダート系のパワー血統が突出"}, {"item": "1コーナー", "good": "内枠有利", "heavy": "内枠さらに有利（前で位置取り）"}, {"item": "追込", "good": "やや届きにくい", "heavy": "届かない。減点対象"}], "matrix": [{"name": "ラムジェット", "num": 14, "pop": 2, "frame": "7枠", "style": "差し", "heavy": "◎", "sashi": "◎", "data": "東京ダービー馬×G1好走×父マジェスティック=重ダート王道血統", "rank": "S"}, {"name": "サイモンザナドゥ", "num": 5, "pop": 4, "frame": "3枠", "style": "先行", "heavy": "◎", "sashi": "◎", "data": "昨年シリウスS2着リピーター×先行×川田×重馬場好条件", "rank": "A"}, {"name": "カズタンジャー", "num": 3, "pop": 3, "frame": "2枠", "style": "先行", "heavy": "◎", "sashi": "○", "data": "先行×父ドレフォン×平安S2着の重賞実績", "rank": "A"}, {"name": "リアレスト", "num": 15, "pop": 6, "frame": "8枠", "style": "先行", "heavy": "◎", "sashi": "○", "data": "先行×4歳軽ハンデ×2連勝の勢い", "rank": "A-"}, {"name": "マイノワール", "num": 11, "pop": 8, "frame": "6枠", "style": "差し", "heavy": "○", "sashi": "○", "data": "父ヘニーヒューズ×前走BSN賞1着。重ダート適性◎", "rank": "B+"}, {"name": "ゼットリアン", "num": 7, "pop": 7, "frame": "4枠", "style": "先行", "heavy": "◎", "sashi": "○", "data": "父ゴールドアリュール=重ダート王道。先行力ある", "rank": "B+"}, {"name": "ルシュヴァルドール", "num": 16, "pop": 5, "frame": "8枠", "style": "先行", "heavy": "○", "sashi": "○", "data": "先行×前走OP1着。父リオンディーズはダート適性中", "rank": "B"}, {"name": "ハピ", "num": 10, "pop": 10, "frame": "5枠", "style": "差し", "heavy": "△", "sashi": "○", "data": "チャンピオンズC3着の格。差し脚質で重馬場やや不利", "rank": "B"}, {"name": "ギュルヴィ", "num": 4, "pop": 1, "frame": "2枠", "style": "差し", "heavy": "△", "sashi": "○", "data": "9走連続馬券圏の安定感だが差し馬で重馬場は割引", "rank": "B-"}, {"name": "オニャンコポン", "num": 2, "pop": 12, "frame": "1枠", "style": "先行", "heavy": "△", "sashi": "△", "data": "7歳で近走不振。芝→ダート転向組で適性未知数", "rank": "C+"}], "pickup": [{"name": "ラムジェット", "num": 14, "pop": 2, "odds": 5.0, "label": "重馬場の本命", "color": "#1e5fa8", "reasons": ["東京ダービー馬×チャンピオンズC3着の格上G1実績", "父マジェスティックウォリアー×母父ゴールドアリュール=重ダート王道血統", "重馬場でパワー血統がさらに活きる", "帝王賞5着から立て直しで叩き2走目"]}, {"name": "サイモンザナドゥ", "num": 5, "pop": 4, "odds": 11.0, "label": "リピーター", "color": "#3da53d", "reasons": ["昨年シリウスS2着のリピーターボーナス+6pt自動加算", "先行脚質×重馬場前有利の恩恵大", "川田将雅×アジアエクスプレス産駒", "4番人気の妙味"]}, {"name": "マイノワール", "num": 11, "pop": 8, "odds": 19.5, "label": "血統穴", "color": "#d4941a", "reasons": ["父ヘニーヒューズの重ダート王道血統", "前走BSN賞1着の勢い", "8番人気の妙味大", "浜中俊騎乗"]}], "danger": [{"name": "ギュルヴィ", "num": 4, "pop": 1, "odds": 4.0, "note": "9走連続馬券圏の安定感で1番人気（4.0倍）。ただしG3で勝ち切れず2-3着中心。差し脚質は重馬場ダート前有利の展開でやや不利。1-2番人気が複勝率50%止まりの荒れるレース傾向にも該当。単勝より複勝までが手堅い。"}, {"name": "オニャンコポン", "num": 2, "pop": 12, "odds": 46.0, "note": "7歳で複勝率減退データ該当。京成杯（芝G3）勝ちの実績はあるが芝路線からダート転向組で適性未知数。近走不振（前走6着）。"}], "impact": ["🟢 雨予報→重ダート想定で先行有利がさらに強まる", "🟢 米国ダート系血統（マジェスティック・ヘニー・Nyquist）に追い風", "🔴 追込一本型は届きにくい→ ジューンアヲニヨシ・ミッキークレストに逆風", "🔴 1番人気ギュルヴィ（差し）は重馬場でやや割引", "⚡ 内枠×先行が最有利パターン→ サイモン（3枠5番）・カズタン（2枠3番）が好位置", "🔁 リピーター（サイモンザナドゥ）に+6ptの自動ボーナス（過去教訓）"], "plans": [{"id": "main", "label": "推奨", "when": "重ダート想定", "axis": "14 ラムジェット", "why": "重馬場想定×AI上位◎ラムジェット軸。リピーター○サイモン、血統穴▲マイノワールへ広げる。", "tickets": [{"type": "単勝", "legs": [[14]], "points": 1, "unit": 1000}, {"type": "複勝", "legs": [[14]], "points": 1, "unit": 500}, {"type": "馬連", "legs": [[5], [14]], "points": 1, "unit": 200}, {"type": "馬連", "legs": [[11], [14]], "points": 1, "unit": 200}, {"type": "馬連", "legs": [[14], [15]], "points": 1, "unit": 200}, {"type": "馬連", "legs": [[3], [14]], "points": 1, "unit": 200}, {"type": "3連複", "legs": [[14], [5], [11]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[14], [5], [15]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[14], [11], [15]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[5], [11], [15]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[5], [7], [14]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[5], [10], [14]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[5], [14], [16]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[5], [9], [14]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[7], [11], [14]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[10], [11], [14]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[11], [14], [16]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[9], [11], [14]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[7], [14], [15]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[10], [14], [15]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[14], [15], [16]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[9], [14], [15]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[3], [7], [14]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[3], [10], [14]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[3], [14], [16]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[3], [9], [14]], "points": 1, "unit": 100}]}], "order": 2, "blood": {"condition": "阪神 ダ2000m・重（想定）", "tip": "米国ダート系（マジェスティック・ヘニー・Nyquist）が阪神ダ2000m重馬場に好適。", "lines": [{"label": "マジェスティックウォリアー", "val": "ラムジェットの父。米国ダート王道血統", "hl": true}, {"label": "ヘニーヒューズ", "val": "ダブルジョーク・マイノワールの父。重ダート適性◎", "hl": true}, {"label": "Nyquist", "val": "ギュルヴィの父。米ダート王者血統", "hl": false}, {"label": "ドレフォン", "val": "カズタンジャー・ジューンの父。ダート短~中距離", "hl": false}, {"label": "キズナ", "val": "ハピの父。ダート中距離適性あり", "hl": false}], "horses": [{"num": 14, "frame": 7, "name": "ラムジェット", "sire": "マジェスティックウォリアー", "bms": "ゴールドアリュール", "score": 51, "sireScore": 51, "bmsScore": 52, "sireProfile": {"surface": "ダ", "dist": "マ〜中", "heavy": 7, "speed": 7, "power": 9, "stamina": 6, "growth": "NORMAL", "notes": "A.P.Indy系の米国ダート血統。ベストウォーリアなど中距離ダートで強い。（推定値）"}, "bmsProfile": {"surface": "ダ", "dist": "マ〜中", "heavy": 9, "speed": 7, "power": 9, "stamina": 7, "growth": "NORMAL", "notes": "ダートの大種牡馬。コパノリッキー、スマートファルコン等輩出。"}, "good": ["父の馬場：完全一致", "父の距離：適性範囲の端"], "bad": []}, {"num": 4, "frame": 2, "name": "ギュルヴィ", "sire": "Nyquist", "bms": "Tapit", "score": 43, "sireScore": 47, "bmsScore": 35, "sireProfile": {"surface": "ダ", "dist": "短〜中", "heavy": 7, "speed": 9, "power": 8, "stamina": 5, "growth": "EARLY", "notes": "ケンタッキーダービー馬。米国ダートのスピードとパワー。（推定値）"}, "bmsProfile": {"surface": "芝", "dist": "マ〜中", "heavy": 6, "speed": 8, "power": 7, "stamina": 6, "growth": "NORMAL", "notes": "米国最強種牡馬の一角。スピードとパワーを兼備。日本でも芝中距離で実績。"}, "good": ["父の馬場：完全一致", "父の距離：適性範囲の端"], "bad": ["父の成長：早熟×5歳"]}, {"num": 13, "frame": 7, "name": "メイショウズイウン", "sire": "ミッキーロケット", "bms": "シンボリクリスエス", "score": 42, "sireScore": 45, "bmsScore": 35, "sireProfile": {"surface": "芝ダ", "dist": "中〜長", "heavy": 6, "speed": 6, "power": 7, "stamina": 8, "growth": "NORMAL", "notes": "宝塚記念馬。産駒はダート中距離でも走る持久型。（推定値）"}, "bmsProfile": {"surface": "芝", "dist": "中〜長", "heavy": 5, "speed": 7, "power": 8, "stamina": 8, "growth": "NORMAL", "notes": "有馬記念連覇。エピファネイア等輩出。"}, "good": ["父の距離：適性範囲の端"], "bad": []}, {"num": 7, "frame": 4, "name": "ゼットリアン", "sire": "ゴールドアリュール", "bms": "サクラバクシンオー", "score": 41, "sireScore": 52, "bmsScore": 16, "sireProfile": {"surface": "ダ", "dist": "マ〜中", "heavy": 9, "speed": 7, "power": 9, "stamina": 7, "growth": "NORMAL", "notes": "ダートの大種牡馬。コパノリッキー、スマートファルコン等輩出。"}, "bmsProfile": {"surface": "芝", "dist": "短〜短", "heavy": 4, "speed": 10, "power": 6, "stamina": 3, "growth": "EARLY", "notes": "スプリントの絶対王者。産駒もスプリント〜マイルに集中。"}, "good": ["父の馬場：完全一致", "父の距離：適性範囲の端"], "bad": []}, {"num": 12, "frame": 6, "name": "ミッキークレスト", "sire": "ゴールドアクター", "bms": "シンボリクリスエス", "score": 40, "sireScore": 43, "bmsScore": 35, "sireProfile": {"surface": "芝", "dist": "中〜長", "heavy": 6, "speed": 5, "power": 6, "stamina": 8, "growth": "LATE", "notes": "2015年有馬記念馬。スクリーンヒーロー産駒。スタミナ型晩成。長距離向き。"}, "bmsProfile": {"surface": "芝", "dist": "中〜長", "heavy": 5, "speed": 7, "power": 8, "stamina": 8, "growth": "NORMAL", "notes": "有馬記念連覇。エピファネイア等輩出。"}, "good": ["父の距離：適性範囲の端", "父のコース：完全一致", "父の成長：晩成×7歳"], "bad": ["父の馬場：不適合"]}, {"num": 5, "frame": 3, "name": "サイモンザナドゥ", "sire": "アジアエクスプレス", "bms": "アグネスデジタル", "score": 39, "sireScore": 36, "bmsScore": 46, "sireProfile": {"surface": "ダ", "dist": "短〜マ", "heavy": 8, "speed": 9, "power": 8, "stamina": 5, "growth": "EARLY", "notes": "朝日杯FS優勝。ヘニーヒューズ産駒。ダート短距離型。"}, "bmsProfile": {"surface": "芝ダ", "dist": "マ〜中", "heavy": 7, "speed": 8, "power": 8, "stamina": 7, "growth": "NORMAL", "notes": "天皇賞秋・マイルCS・フェブラリーS優勝の芝ダート兼用馬。万能な母父。"}, "good": ["父の馬場：完全一致"], "bad": ["父の距離：やや範囲外", "父の成長：早熟×6歳"]}, {"num": 1, "frame": 1, "name": "ヴァルツァーシャル", "sire": "マクフィ", "bms": "エンパイアメーカー", "score": 37, "sireScore": 33, "bmsScore": 46, "sireProfile": {"surface": "芝ダ", "dist": "短〜マ", "heavy": 6, "speed": 8, "power": 7, "stamina": 5, "growth": "NORMAL", "notes": "仏2000ギニー馬。芝短距離とダートの両方で産駒が走る。（推定値）"}, "bmsProfile": {"surface": "芝ダ", "dist": "マ〜中", "heavy": 7, "speed": 8, "power": 8, "stamina": 7, "growth": "NORMAL", "notes": "ベルモントS優勝。芝ダート兼用の万能型母父として日本で活躍。"}, "good": [], "bad": ["父の距離：やや範囲外"]}, {"num": 11, "frame": 6, "name": "マイノワール", "sire": "ヘニーヒューズ", "bms": "サンデーサイレンス", "score": 37, "sireScore": 37, "bmsScore": 36, "sireProfile": {"surface": "ダ", "dist": "短〜マ", "heavy": 9, "speed": 9, "power": 10, "stamina": 5, "growth": "EARLY", "notes": "ダート短距離のスペシャリスト。モーニン等輩出。"}, "bmsProfile": {"surface": "芝", "dist": "マ〜長", "heavy": 4, "speed": 9, "power": 7, "stamina": 8, "growth": "NORMAL", "notes": "日本競馬を変革した大種牡馬。13回のリーディングサイアー。"}, "good": ["父の馬場：完全一致"], "bad": ["父の距離：やや範囲外", "父の成長：早熟×5歳"]}, {"num": 9, "frame": 5, "name": "ダブルジョーク", "sire": "ヘニーヒューズ", "bms": "ネオユニヴァース", "score": 36, "sireScore": 37, "bmsScore": 34, "sireProfile": {"surface": "ダ", "dist": "短〜マ", "heavy": 9, "speed": 9, "power": 10, "stamina": 5, "growth": "EARLY", "notes": "ダート短距離のスペシャリスト。モーニン等輩出。"}, "bmsProfile": {"surface": "芝", "dist": "マ〜中", "heavy": 5, "speed": 8, "power": 7, "stamina": 7, "growth": "NORMAL", "notes": "二冠馬。ヴィクトワールピサ等輩出。"}, "good": ["父の馬場：完全一致"], "bad": ["父の距離：やや範囲外", "父の成長：早熟×6歳"]}, {"num": 3, "frame": 2, "name": "カズタンジャー", "sire": "ドレフォン", "bms": "アサクサキングス", "score": 35, "sireScore": 35, "bmsScore": null, "sireProfile": {"surface": "芝ダ", "dist": "短〜マ", "heavy": 7, "speed": 9, "power": 9, "stamina": 6, "growth": "EARLY", "notes": "BCスプリント優勝。ストームキャット系。スターアニス(桜花賞)等輩出。芝ダート兼用でパワー型。気性の前向きさが強く2400m以上は大幅距離不安（スターアニス2026オークス12着で実証）。"}, "bmsProfile": null, "good": ["父のコース：完全一致"], "bad": ["父の距離：やや範囲外", "父の成長：早熟×5歳"]}, {"num": 8, "frame": 4, "name": "ダイシンピスケス", "sire": "マインドユアビスケッツ", "bms": "アドマイヤムーン", "score": 35, "sireScore": 30, "bmsScore": 45, "sireProfile": {"surface": "芝ダ", "dist": "短〜マ", "heavy": 6, "speed": 9, "power": 8, "stamina": 4, "growth": "EARLY", "notes": "米国ダートスプリンター。マピュースの父。パワー型スピード馬。"}, "bmsProfile": {"surface": "芝ダ", "dist": "マ〜中", "heavy": 6, "speed": 8, "power": 7, "stamina": 7, "growth": "NORMAL", "notes": "宝塚記念・JC優勝。芝ダート兼用。"}, "good": [], "bad": ["父の距離：やや範囲外", "父の成長：早熟×5歳"]}, {"num": 10, "frame": 5, "name": "ハピ", "sire": "キズナ", "bms": "アドマイヤジャパン", "score": 35, "sireScore": 35, "bmsScore": null, "sireProfile": {"surface": "芝", "dist": "マ〜中", "heavy": 5, "speed": 8, "power": 7, "stamina": 8, "growth": "NORMAL", "notes": "ダービー馬。ディープ後継。ソングライン等輩出。ドリームコア(2026オークス2着)で東京芝2400m適性を実証。左回り中距離での持続力に定評。"}, "bmsProfile": null, "good": ["父の距離：適性範囲の端"], "bad": ["父の馬場：不適合", "父の馬場状態：重適性5/10"]}, {"num": 6, "frame": 3, "name": "ジューンアヲニヨシ", "sire": "ドレフォン", "bms": "ハーツクライ", "score": 34, "sireScore": 35, "bmsScore": 32, "sireProfile": {"surface": "芝ダ", "dist": "短〜マ", "heavy": 7, "speed": 9, "power": 9, "stamina": 6, "growth": "EARLY", "notes": "BCスプリント優勝。ストームキャット系。スターアニス(桜花賞)等輩出。芝ダート兼用でパワー型。気性の前向きさが強く2400m以上は大幅距離不安（スターアニス2026オークス12着で実証）。"}, "bmsProfile": {"surface": "芝", "dist": "中〜長", "heavy": 5, "speed": 7, "power": 7, "stamina": 9, "growth": "LATE", "notes": "晩成型の中長距離種牡馬。東京コース（左回り）に強い。"}, "good": ["父のコース：完全一致"], "bad": ["父の距離：やや範囲外", "父の成長：早熟×5歳"]}, {"num": 16, "frame": 8, "name": "ルシュヴァルドール", "sire": "リオンディーズ", "bms": "ゼンノロブロイ", "score": 34, "sireScore": 35, "bmsScore": 34, "sireProfile": {"surface": "芝", "dist": "マ〜中", "heavy": 5, "speed": 8, "power": 8, "stamina": 7, "growth": "NORMAL", "notes": "朝日杯FS優勝。エピファネイアの全弟。"}, "bmsProfile": {"surface": "芝", "dist": "中〜長", "heavy": 6, "speed": 6, "power": 6, "stamina": 7, "growth": "NORMAL", "notes": "2004年秋古馬三冠。スタミナ型中長距離馬。母父として安定したスタミナを供給。"}, "good": ["父の距離：適性範囲の端"], "bad": ["父の馬場：不適合", "父の馬場状態：重適性5/10"]}, {"num": 15, "frame": 8, "name": "リアレスト", "sire": "ジャスタウェイ", "bms": "シンボリクリスエス", "score": 33, "sireScore": 31, "bmsScore": 39, "sireProfile": {"surface": "芝", "dist": "マ〜中", "heavy": 4, "speed": 9, "power": 6, "stamina": 7, "growth": "LATE", "notes": "ドバイDF圧勝のレーティング世界1位馬。晩成型。"}, "bmsProfile": {"surface": "芝", "dist": "中〜長", "heavy": 5, "speed": 7, "power": 8, "stamina": 8, "growth": "NORMAL", "notes": "有馬記念連覇。エピファネイア等輩出。"}, "good": ["父の距離：適性範囲の端"], "bad": ["父の馬場：不適合", "父のコース：逆回り"]}, {"num": 2, "frame": 1, "name": "オニャンコポン", "sire": "エイシンフラッシュ", "bms": "マイニング", "score": 30, "sireScore": 30, "bmsScore": null, "sireProfile": {"surface": "芝", "dist": "中〜中", "heavy": 3, "speed": 8, "power": 6, "stamina": 7, "growth": "NORMAL", "notes": "ダービー馬・天皇賞(秋)優勝。東京に強い。"}, "bmsProfile": null, "good": ["父の距離：距離ど真ん中◎"], "bad": ["父の馬場：不適合", "父のコース：逆回り"]}]}}, {"id": "roseS2026", "grade": "G2", "name": "ローズS", "fullName": "第44回 ローズステークス", "date": "2026-09-13", "dow": "日", "post": "15:30", "venue": "阪神", "course": "芝1800m（外）", "field": 12, "status": "done", "track": {"cond": "良", "weather": "晴", "asOf": "9/13（日）7:30 クッション値8.6", "biasLabel": "バイアスなし"}, "marks": [{"num": 10, "frame": 7, "name": "スウィートハピネス", "pop": 7, "tan": 19.3, "style": "差し", "jockey": "佐々木大輔", "mark": "◎", "score": 84.2, "winPct": 21.6, "place3Pct": 48.4, "ev": 4.17}, {"num": 2, "frame": 2, "name": "エンネ", "pop": 3, "tan": 5.7, "style": "差し", "jockey": "坂井瑠星", "mark": "○", "score": 82.4, "winPct": 16.7, "place3Pct": 41.3, "ev": 0.95}, {"num": 6, "frame": 5, "name": "イクシード", "pop": 2, "tan": 5.0, "style": "差し", "jockey": "C.ルメール", "mark": "▲", "score": 82.1, "winPct": 13.2, "place3Pct": 37.4, "ev": 0.66}, {"num": 11, "frame": 8, "name": "レイクラシック", "pop": 6, "tan": 19.0, "style": "先行", "jockey": "吉村誠之助", "mark": "△", "score": 80.2, "winPct": 10.0, "place3Pct": 31.2, "ev": 1.9}, {"num": 7, "frame": 6, "name": "モンローウォーク", "pop": 1, "tan": 2.2, "style": "先行", "jockey": "戸崎圭太", "mark": "△", "score": 79.8, "winPct": 7.8, "place3Pct": 28.9, "ev": 0.17}, {"num": 3, "frame": 3, "name": "スマートプリエール", "pop": 8, "tan": 23.0, "style": "差し", "jockey": "田山旺佑", "mark": "", "score": 78.6, "winPct": 6.2, "place3Pct": 24.0, "ev": 1.43}, {"num": 5, "frame": 5, "name": "ファストフォワード", "pop": 9, "tan": 32.2, "style": "先行", "jockey": "小崎綾也", "mark": "", "score": 77.8, "winPct": 6.2, "place3Pct": 21.8, "ev": 2.0}, {"num": 1, "frame": 1, "name": "アンジュドジョワ", "pop": 5, "tan": 12.5, "style": "先行", "jockey": "北村友一", "mark": "", "score": 77.5, "winPct": 5.1, "place3Pct": 17.3, "ev": 0.64}, {"num": 9, "frame": 7, "name": "ナムラコスモス", "pop": 10, "tan": 35.0, "style": "先行", "jockey": "田口貫太", "mark": "", "score": 76.4, "winPct": 4.4, "place3Pct": 16.6, "ev": 1.54}, {"num": 4, "frame": 4, "name": "アンディムジーク", "pop": 12, "tan": 121.1, "style": "差し", "jockey": "古川吉洋", "mark": "", "score": 75.9, "winPct": 4.2, "place3Pct": 13.8, "ev": 5.09}, {"num": 12, "frame": 8, "name": "タイセイボーグ", "pop": 4, "tan": 8.6, "style": "差し", "jockey": "西村淳也", "mark": "", "score": 75.4, "winPct": 3.9, "place3Pct": 12.6, "ev": 0.34}, {"num": 8, "frame": 6, "name": "ミリタリータトゥー", "pop": 11, "tan": 35.6, "style": "先行", "jockey": "西塚洸二", "mark": "", "score": 73.6, "winPct": 0.7, "place3Pct": 6.7, "ev": 0.25}], "trackNote": "阪神芝は良馬場・クッション値8.6で標準的な硬さ（やや軟らかめ寄り）。極端な脚質バイアスはかからず、素直に能力・血統・展開で予想できる馬場。阪神外1800mの本来の傾向（直線473mでの瞬発力勝負・差し好位有利）が素直に出やすい。", "bias": "良（クッション値8.6=標準）", "prevRaces": [], "conditionChange": [{"item": "馬場状態", "good": "晴・芝良・クッション値8.6", "heavy": "標準（やや軟らかめ寄り）"}, {"item": "バイアス", "good": "極端な差し天国でも前残り天国でもない", "heavy": "素直に能力比較で判断"}, {"item": "想定ペース", "good": "モンローウォーク不在で緩みやすい", "heavy": "上がり33秒台の瞬発力勝負に"}, {"item": "1800m", "good": "阪神外は直線473mで長い", "heavy": "差し・好位差し・先行馬まで届く範囲"}, {"item": "時計", "good": "標準馬場で時計は平均的", "heavy": "高速すぎない前後半バランス型"}], "matrix": [{"name": "スウィートハピネス", "num": 10, "pop": 7, "frame": "7枠", "style": "差し", "heavy": "◎", "sashi": "◎", "data": "差し×瞬発力勝負×阪神JF4着エルフィンS勝ちの重賞実績。距離短縮◎", "rank": "S"}, {"name": "エンネ", "num": 2, "pop": 3, "frame": "2枠", "style": "差し", "heavy": "◎", "sashi": "◎", "data": "差し×フローラS2着×坂井×キズナ×阪神で条件◎", "rank": "A"}, {"name": "イクシード", "num": 6, "pop": 2, "frame": "5枠", "style": "差し", "heavy": "◎", "sashi": "◎", "data": "差し×キタサンブラック×ルメール×前走完勝の3連勝相当", "rank": "A"}, {"name": "レイクラシック", "num": 11, "pop": 6, "frame": "8枠", "style": "先行", "heavy": "○", "sashi": "○", "data": "先行キタサンブラック×前走2000m勝ち。標準馬場で位置取り有利", "rank": "A-"}, {"name": "スマートプリエール", "num": 3, "pop": 8, "frame": "3枠", "style": "差し", "heavy": "○", "sashi": "○", "data": "フラワーC1着の重賞勝ち馬。オークス15着からの距離短縮", "rank": "B+"}, {"name": "タイセイボーグ", "num": 12, "pop": 4, "frame": "8枠", "style": "差し", "heavy": "○", "sashi": "○", "data": "チューリップ賞1着×G1好走歴。実績最上位も休み明け6ヶ月", "rank": "B+"}, {"name": "アンジュドジョワ", "num": 1, "pop": 5, "frame": "1枠", "style": "先行", "heavy": "○", "sashi": "○", "data": "キタサンブラック×北村友一×前走オークス9着からの短縮", "rank": "B"}, {"name": "モンローウォーク", "num": 7, "pop": 1, "frame": "6枠", "style": "先行", "heavy": "△", "sashi": "△", "data": "3連勝の上がり馬だが重賞初挑戦。相手強化が最大の不安", "rank": "B-"}, {"name": "ファストフォワード", "num": 5, "pop": 9, "frame": "5枠", "style": "先行", "heavy": "○", "sashi": "△", "data": "1勝クラス勝ちの勢い。夏の上がり馬", "rank": "B"}, {"name": "ミリタリータトゥー", "num": 8, "pop": 11, "frame": "6枠", "style": "先行", "heavy": "△", "sashi": "△", "data": "2連勝も条件戦組。相手強化で厳しい", "rank": "C"}], "pickup": [{"name": "スウィートハピネス", "num": 10, "pop": 7, "odds": 19.3, "label": "馬場の本命", "color": "#1e5fa8", "reasons": ["差し脚質×阪神外1800mの瞬発力勝負に最適", "クッション値8.6の標準馬場で能力素直に発揮", "阪神JF4着×エルフィンS勝ちの重賞実績はメンバー最上位級", "オークス5着（17番人気）からの距離短縮で狙い頃"]}, {"name": "エンネ", "num": 2, "pop": 3, "odds": 5.7, "label": "差し馬の中核", "color": "#3da53d", "reasons": ["フローラS2着（上がり32.8）の末脚は世代トップクラス", "オークス7着からの距離短縮＝理想的なローテ", "坂井瑠星×キズナ×阪神の好条件揃い"]}, {"name": "レイクラシック", "num": 11, "pop": 6, "odds": 19.0, "label": "人気薄の妙味", "color": "#d4941a", "reasons": ["父キタサンブラックは阪神芝適性◎", "前走2000m1勝クラス勝ちの内容が優秀（上がり33.5）", "シミュ期待値1.90と6番人気にしては妙味大"]}], "danger": [{"name": "モンローウォーク", "num": 7, "pop": 1, "odds": 2.2, "note": "3戦3勝の勢いは魅力だが【重賞初挑戦で相手強化】が最大の不安。府中牝馬Sヴァルキリーバース（1番人気14着）と同じ『格下相手にしか勝っていない人気馬』パターン。前走2勝クラス相手＝G2レベルとは大きなギャップ。標準馬場で能力素直に出るからこそ、実績差が露呈しやすい。単勝2.2倍はリスクリターン悪い。"}, {"name": "タイセイボーグ", "num": 12, "pop": 4, "odds": 8.6, "note": "チューリップ賞1着・阪神JF3着の実績は本物だが【前走から6ヶ月休み明け】が懸念。3歳牝馬の長期休養明けは仕上げ次第。実績通り走れば上位だが、叩き2走目のほうが安全。"}], "impact": ["🟢 クッション値8.6の標準馬場→ 極端なバイアスなし。素直に能力・血統勝負", "🟢 阪神外1800m本来の瞬発力勝負→ スウィートハピネス・エンネ・イクシードの差し馬に追い風", "🟡 モンローウォーク不在の想定でペース緩みやすい→ 上がり33秒台の決め手勝負", "🔴 1番人気モンローウォーク（重賞初挑戦）→ 標準馬場で能力差が露呈するリスク大", "⚡ 直線473mで届く範囲→ 後方一気は届きにくいが好位差しは十分間に合う"], "plans": [{"id": "main", "label": "推奨", "when": "良馬場", "axis": "10 スウィートハピネス", "why": "AI上位×妙味×脚質分散。◎スウィートハピネス（7人気19.3倍）から4頭本命線＋4頭穴保険。", "tickets": [{"type": "単勝", "legs": [[10]], "points": 1, "unit": 1000}, {"type": "複勝", "legs": [[10]], "points": 1, "unit": 500}, {"type": "馬連", "legs": [[2], [10]], "points": 1, "unit": 200}, {"type": "馬連", "legs": [[6], [10]], "points": 1, "unit": 200}, {"type": "馬連", "legs": [[10], [11]], "points": 1, "unit": 200}, {"type": "馬連", "legs": [[3], [10]], "points": 1, "unit": 200}, {"type": "3連複", "legs": [[2], [6], [10]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[2], [10], [11]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[6], [10], [11]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[2], [6], [11]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[2], [3], [10]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[2], [5], [10]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[2], [10], [12]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[2], [7], [10]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[3], [6], [10]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[5], [6], [10]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[6], [10], [12]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[6], [7], [10]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[3], [10], [11]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[5], [10], [11]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[10], [11], [12]], "points": 1, "unit": 100}, {"type": "3連複", "legs": [[7], [10], [11]], "points": 1, "unit": 100}]}], "order": 1, "blood": {"condition": "阪神 芝1800m・良", "tip": "キタサンブラック3頭・キズナ2頭が上位血統。阪神外1800mの瞬発力勝負に適応。", "lines": [{"label": "キタサンブラック", "val": "阪神芝適性◎。アンジュドジョワ・イクシード・レイクラシック", "hl": true}, {"label": "キズナ", "val": "阪神芝1800mで多数の重賞実績 → モンローウォーク・エンネ", "hl": true}, {"label": "エピファネイア", "val": "瞬発力型。スマートプリエール", "hl": false}, {"label": "インディチャンプ", "val": "タイセイボーグの父。マイル王のスピード＋1800m対応", "hl": false}, {"label": "デクラレーションオブウォー", "val": "ミリタリータトゥーの父。府中牝馬S覇者セキトバイーストと同父", "hl": false}], "horses": [{"num": 9, "frame": 7, "name": "ナムラコスモス", "sire": "ダノンプレミアム", "bms": "ジョーカプチーノ", "score": 57, "sireScore": 57, "bmsScore": 57, "sireProfile": {"surface": "芝", "dist": "マ〜中", "heavy": 3, "speed": 9, "power": 6, "stamina": 6, "growth": "EARLY", "notes": "朝日杯FS・マイルCS制覇。ディープ産駒の早熟マイラー。新種牡馬。"}, "bmsProfile": {"surface": "芝", "dist": "短〜マ", "heavy": 4, "speed": 9, "power": 6, "stamina": 5, "growth": "EARLY", "notes": "NHKマイルC優勝。マンハッタンカフェ産駒の快速マイラー。スピード型。"}, "good": ["父の馬場：完全一致", "父の距離：適性範囲の端", "父の成長：早熟×3歳"], "bad": []}, {"num": 3, "frame": 3, "name": "スマートプリエール", "sire": "エピファネイア", "bms": "ディープインパクト", "score": 56, "sireScore": 56, "bmsScore": 57, "sireProfile": {"surface": "芝", "dist": "マ〜長", "heavy": 4, "speed": 8, "power": 7, "stamina": 8, "growth": "NORMAL", "notes": "ジャパンC圧勝。デアリングタクト、エフフォーリア等輩出。"}, "bmsProfile": {"surface": "芝", "dist": "マ〜長", "heavy": 2, "speed": 9, "power": 6, "stamina": 8, "growth": "NORMAL", "notes": "日本競馬史上最高の種牡馬。芝中長距離で圧倒的。瞬発力に優れた産駒多数。"}, "good": ["父の馬場：完全一致", "父の距離：適性範囲の端", "父の成長：普通×3歳"], "bad": []}, {"num": 4, "frame": 4, "name": "アンディムジーク", "sire": "アドマイヤマーズ", "bms": "ノヴェリスト", "score": 56, "sireScore": 56, "bmsScore": null, "sireProfile": {"surface": "芝", "dist": "短〜マ", "heavy": 5, "speed": 9, "power": 6, "stamina": 5, "growth": "EARLY", "notes": "2019年朝日杯FS・NHKマイルC勝ち馬。ダイワメジャー系スプリンター〜マイラー。エンブロイダリーの父。"}, "bmsProfile": null, "good": ["父の馬場：完全一致", "父の距離：適性範囲の端", "父の成長：早熟×3歳"], "bad": []}, {"num": 6, "frame": 5, "name": "イクシード", "sire": "キタサンブラック", "bms": "キングヘイロー", "score": 55, "sireScore": 54, "bmsScore": 57, "sireProfile": {"surface": "芝", "dist": "マ〜長", "heavy": 6, "speed": 8, "power": 8, "stamina": 9, "growth": "NORMAL", "notes": "年度代表馬2回。イクイノックスを輩出した大種牡馬。万能型。"}, "bmsProfile": {"surface": "芝", "dist": "短〜マ", "heavy": 4, "speed": 9, "power": 6, "stamina": 5, "growth": "EARLY", "notes": "高松宮記念優勝。カワカミプリンセス等輩出。"}, "good": ["父の馬場：完全一致", "父の距離：適性範囲の端", "父の成長：普通×3歳"], "bad": []}, {"num": 7, "frame": 6, "name": "モンローウォーク", "sire": "キズナ", "bms": "Sebring", "score": 55, "sireScore": 55, "bmsScore": null, "sireProfile": {"surface": "芝", "dist": "マ〜中", "heavy": 5, "speed": 8, "power": 7, "stamina": 8, "growth": "NORMAL", "notes": "ダービー馬。ディープ後継。ソングライン等輩出。ドリームコア(2026オークス2着)で東京芝2400m適性を実証。左回り中距離での持続力に定評。"}, "bmsProfile": null, "good": ["父の馬場：完全一致", "父の距離：適性範囲の端", "父の成長：普通×3歳"], "bad": []}, {"num": 12, "frame": 8, "name": "タイセイボーグ", "sire": "インディチャンプ", "bms": "Azamour", "score": 55, "sireScore": 55, "bmsScore": null, "sireProfile": {"surface": "芝", "dist": "短〜マ", "heavy": 5, "speed": 9, "power": 7, "stamina": 5, "growth": "NORMAL", "notes": "安田記念・マイルCSを勝ったマイル王。スピード型。（推定値）"}, "bmsProfile": null, "good": ["父の馬場：完全一致", "父の距離：適性範囲の端", "父の成長：普通×3歳"], "bad": []}, {"num": 1, "frame": 1, "name": "アンジュドジョワ", "sire": "キタサンブラック", "bms": "Dark Angel", "score": 54, "sireScore": 54, "bmsScore": 53, "sireProfile": {"surface": "芝", "dist": "マ〜長", "heavy": 6, "speed": 8, "power": 8, "stamina": 9, "growth": "NORMAL", "notes": "年度代表馬2回。イクイノックスを輩出した大種牡馬。万能型。"}, "bmsProfile": {"surface": "芝", "dist": "短〜マ", "heavy": 8, "speed": 10, "power": 7, "stamina": 3, "growth": "NORMAL", "notes": "2024年欧州チャンピオンサイアー。マッドクール（高松宮記念2024）輩出。Ahonoora系純正スプリンター。重馬場◎。中距離以上は不可。"}, "good": ["父の馬場：完全一致", "父の距離：適性範囲の端", "父の成長：普通×3歳"], "bad": []}, {"num": 2, "frame": 2, "name": "エンネ", "sire": "キズナ", "bms": "Medaglia d'Oro", "score": 53, "sireScore": 55, "bmsScore": 50, "sireProfile": {"surface": "芝", "dist": "マ〜中", "heavy": 5, "speed": 8, "power": 7, "stamina": 8, "growth": "NORMAL", "notes": "ダービー馬。ディープ後継。ソングライン等輩出。ドリームコア(2026オークス2着)で東京芝2400m適性を実証。左回り中距離での持続力に定評。"}, "bmsProfile": {"surface": "芝ダ", "dist": "マ〜中", "heavy": 6, "speed": 8, "power": 8, "stamina": 6, "growth": "NORMAL", "notes": "米国G1馬。El Prado系。パワー型中距離。ユウファラオの母父。"}, "good": ["父の馬場：完全一致", "父の距離：適性範囲の端", "父の成長：普通×3歳"], "bad": []}, {"num": 10, "frame": 7, "name": "スウィートハピネス", "sire": "リアルインパクト", "bms": "ワークフォース", "score": 50, "sireScore": 58, "bmsScore": 31, "sireProfile": {"surface": "芝", "dist": "マ〜マ", "heavy": 4, "speed": 9, "power": 6, "stamina": 5, "growth": "NORMAL", "notes": "安田記念・ジョージライダーS(豪G1)優勝。ディープ産駒のマイラー種牡馬。ラウダシオン等輩出。"}, "bmsProfile": {"surface": "芝", "dist": "中〜長", "heavy": 5, "speed": 6, "power": 7, "stamina": 9, "growth": "LATE", "notes": "英ダービー・凱旋門賞優勝。キングマンボ系の欧州中長距離型。母父サドラーズウェルズ。"}, "good": ["父の馬場：完全一致", "父の距離：距離ど真ん中◎", "父の成長：普通×3歳"], "bad": []}, {"num": 11, "frame": 8, "name": "レイクラシック", "sire": "キタサンブラック", "bms": "ホワイトマズル", "score": 48, "sireScore": 54, "bmsScore": 34, "sireProfile": {"surface": "芝", "dist": "マ〜長", "heavy": 6, "speed": 8, "power": 8, "stamina": 9, "growth": "NORMAL", "notes": "年度代表馬2回。イクイノックスを輩出した大種牡馬。万能型。"}, "bmsProfile": {"surface": "芝", "dist": "中〜長", "heavy": 7, "speed": 6, "power": 7, "stamina": 8, "growth": "LATE", "notes": "欧州長距離馬。レイクラシックの母父。スタミナ型。"}, "good": ["父の馬場：完全一致", "父の距離：適性範囲の端", "父の成長：普通×3歳"], "bad": []}, {"num": 5, "frame": 5, "name": "ファストフォワード", "sire": "ハービンジャー", "bms": "Get Stormy", "score": 47, "sireScore": 47, "bmsScore": null, "sireProfile": {"surface": "芝", "dist": "マ〜長", "heavy": 6, "speed": 7, "power": 8, "stamina": 8, "growth": "LATE", "notes": "キングジョージ圧勝。ナミュール等輩出。パワー型。"}, "bmsProfile": null, "good": ["父の馬場：完全一致", "父の距離：適性範囲の端"], "bad": ["父の成長：晩成×3歳"]}, {"num": 8, "frame": 6, "name": "ミリタリータトゥー", "sire": "デクラレーションオブウォー", "bms": "ハーツクライ", "score": 44, "sireScore": 50, "bmsScore": 31, "sireProfile": {"surface": "芝ダ", "dist": "マ〜中", "heavy": 6, "speed": 8, "power": 8, "stamina": 6, "growth": "NORMAL", "notes": "War Front系（Danzig系）。芝ダ兼用で中距離まで。（推定値）"}, "bmsProfile": {"surface": "芝", "dist": "中〜長", "heavy": 5, "speed": 7, "power": 7, "stamina": 9, "growth": "LATE", "notes": "晩成型の中長距離種牡馬。東京コース（左回り）に強い。"}, "good": ["父の距離：適性範囲の端", "父の成長：普通×3歳"], "bad": []}]}}]</script>
+<script>
+(function(){
+  const S={races:[],sel:null,tab:'track',plan:{},db:null,dbState:'wait',my:{tickets:[],memo:''},unsubMy:null,chain:Promise.resolve(),readonly:false};
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+  const yen=n=>Number(n||0).toLocaleString('ja-JP')+'円';
+  const TABS=['blood','track','bet'];
+  S.tab=TABS.includes(store.get('kk-tab'))?store.get('kk-tab'):'blood';
+
+  const race=()=>S.races.find(r=>r.id===S.sel);
+  const frameMap=r=>{const m={};(r&&r.marks||[]).forEach(h=>{m[h.num]=h.frame});(r&&r.matrix||[]).forEach(h=>{if(!m[h.num]&&h.frame)m[h.num]=parseInt(h.frame)});return m};
+  const chip=(n,fm)=>{const f=fm[n];return `<span class="fc ${f?'fr'+f:''}" title="${f?f+'枠':''}${esc(n)}番">${esc(n)}</span>`};
+  const fmtDate=r=>{const [y,m,d]=(r.date||'').split('-');return m?`${+m}/${+d}（${esc(r.dow||'')}）`:''};
+
+  /* ---------- rail + head ---------- */
+  function renderRail(){
+    const rail=$('rail');
+    if(!S.races.length){rail.innerHTML='';return}
+    rail.innerHTML=S.races.map(r=>`<button class="rchip" data-race="${esc(r.id)}" aria-current="${r.id===S.sel}">
+      <span class="grade g-${esc(r.grade)}">${esc(r.grade)}</span><span class="rname">${r.status==='open'?'<span class="live" aria-label="予想公開中"></span>':''}${esc(r.name)}</span>
+      <span class="rmeta">${fmtDate(r)} ${esc(r.venue)} ${esc(r.course)}</span></button>`).join('');
+  }
+  function renderHead(){
+    const r=race(),h=$('head');
+    if(!r){h.innerHTML=S.dbState==='none'?'<p class="notice">このビューではデータを読み込めません。claude.ai で開いてください。</p>':'<div class="skel" style="width:40%"></div><div class="skel" style="width:70%;height:26px"></div>';return}
+    const t=r.track||{};
+    h.innerHTML=`<div class="meta"><span><span class="grade g-${esc(r.grade)}">${esc(r.grade)}</span></span><span>${fmtDate(r)} ${esc(r.post||'')}発走</span><span>${esc(r.venue)} ${esc(r.course)}</span><span>${esc(r.field||'')}頭</span><span>${r.status==='open'?'予想公開中':'レース終了'}</span></div>
+      <h2>${esc(r.fullName||r.name)}</h2>
+      <div class="trackbar">
+        <div class="cond"><b>${esc((t.cond||'').replace(/（.*/,''))}</b><span>${esc(r.course.startsWith('ダ')?'ダート':'芝')} ${esc(t.cond||'')}<br>${esc(t.weather||'')}・${esc(t.asOf||'')}</span></div>
+        <div class="biaspill"><small>今回の見立て</small><strong>${esc(t.biasLabel||'—')}</strong></div>
+      </div>`;
+  }
+
+  /* ---------- 馬場 ---------- */
+  function impactTag(s){
+    const m=s.match(/^(\S+)\s*/);const e=m?m[1]:'';const text=s.replace(/^[^\s぀-ヿ一-鿿A-Za-z0-9]+\s*/,'');
+    const map={'🟢':['t-good','追い風'],'🔵':['t-good','追い風'],'🔴':['t-bad','逆風'],'🟡':['t-warn','注意'],'⚠️':['t-warn','注意'],'⚡':['t-warn','注目'],'🔁':['t-good','注目'],'📊':['t-warn','データ'],'🏇':['t-warn','注目']};
+    const k=map[e]||['t-warn','メモ'];return `<li><span class="tag ${k[0]}">${k[1]}</span><span>${esc(text)}</span></li>`;
+  }
+  function fitClass(v){return v==='◎'||v==='○'?'fit-good':(v==='×'||v==='✗'?'fit-bad':'')}
+  function renderTrack(r){
+    const fm=frameMap(r);let h='';
+    h+=`<section class="sec"><h3>当日の見立て</h3><p class="lead">${esc(r.trackNote)}</p></section>`;
+    if(r.impact&&r.impact.length) h+=`<section class="sec"><h3>レースへの影響</h3><ul class="list impact">${r.impact.map(impactTag).join('')}</ul></section>`;
+    (r.prevRaces||[]).forEach(p=>{
+      h+=`<section class="sec"><h3>同じ条件の前日レース</h3><div class="card" style="padding:0">
+        <div style="padding:12px 14px 4px"><strong>${esc(p.name)}</strong> <span class="tip" style="margin:0">${esc(p.dist)}・${esc(p.cond)}・${esc(p.time)}・${esc(p.pace)}</span></div>
+        <div style="overflow-x:auto"><table><thead><tr><th>着</th><th>馬名</th><th>脚質</th><th>位置</th><th class="r">上がり</th><th class="hide-sm">メモ</th></tr></thead><tbody>
+        ${(p.results||[]).map(x=>`<tr><td class="num">${esc(x.rank)}</td><td style="font-weight:700;white-space:nowrap">${esc(x.name)}</td><td>${esc(x.style)}</td><td style="white-space:nowrap">${esc(x.pos)}</td><td class="r num">${esc(x.agari)}</td><td class="hide-sm" style="font-size:13px;color:var(--mute)">${esc(x.note)}</td></tr>`).join('')}
+        </tbody></table></div></div>${p.tip?`<p class="tip">${esc(p.tip)}</p>`:''}</section>`;
+    });
+    if(r.conditionChange&&r.conditionChange.length) h+=`<section class="sec"><h3>馬場で変わること</h3><div class="scroll"><table><thead><tr><th>項目</th><th>良のとき</th><th>今回の馬場</th></tr></thead><tbody>
+      ${r.conditionChange.map(c=>`<tr><td style="font-weight:700;white-space:nowrap">${esc(c.item)}</td><td>${esc(c.good)}</td><td>${esc(c.heavy)}</td></tr>`).join('')}</tbody></table></div></section>`;
+    if(r.matrix&&r.matrix.length) h+=`<section class="sec"><h3>各馬の馬場適性</h3><div class="scroll"><table><thead><tr><th>評価</th><th>馬</th><th class="r">人気</th><th>脚質</th><th>適性</th><th>理由</th></tr></thead><tbody>
+      ${r.matrix.map(m=>`<tr><td><span class="rank rk-${esc((m.rank||'')[0])}">${esc(m.rank)}</span></td><td><span class="hname">${chip(m.num,fm)}${esc(m.name)}</span></td><td class="r num">${esc(m.pop||'—')}</td><td>${esc(m.style)}</td><td class="fit ${fitClass(m.heavy)}">${esc(m.heavy)}</td><td style="font-size:13.5px;min-width:200px">${esc(m.data)}</td></tr>`).join('')}</tbody></table></div></section>`;
+    if(r.pickup&&r.pickup.length) h+=`<section class="sec"><h3>浮上する馬</h3><div class="cards2">${r.pickup.map(p=>`<article class="card pick"><div class="lbl">${esc(p.label)}</div><h4>${chip(p.num,fm)}${esc(p.name)}</h4><div class="odds num">${p.pop?esc(p.pop)+'番人気':''}${p.odds?' '+esc(p.odds)+'倍':''}</div><ul>${(p.reasons||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></article>`).join('')}</div></section>`;
+    if(r.danger&&r.danger.length) h+=`<section class="sec"><h3>危ない人気馬</h3><div class="cards2">${r.danger.map(p=>`<article class="card pick danger"><div class="lbl">要注意</div><h4>${chip(p.num,fm)}${esc(p.name)}</h4><div class="odds num">${p.pop?esc(p.pop)+'番人気':''}${p.odds?' '+esc(p.odds)+'倍':''}</div><p>${esc(p.note)}</p></article>`).join('')}</div></section>`;
+    return h;
+  }
+
+  /* ---------- 血統 ---------- */
+  const profTxt=p=>p?`${p.surface}・${p.dist}・道悪${p.heavy}`:'DB未登録';
+  function renderBlood(r){
+    const b=r.blood,fm=frameMap(r);
+    if(!b)return '<p class="empty">このレースの血統データはまだありません。</p>';
+    let h=`<section class="sec"><h3>このレースで走る血統</h3><div class="card"><dl style="margin:0">${(b.lines||[]).map(l=>`<div class="bline"><dt>${esc(l.label)}${l.hl?'<span class="tag t-good">注目</span>':''}</dt><dd>${esc(l.val)}</dd></div>`).join('')}</dl></div>${b.tip?`<p class="tip">${esc(b.tip)}</p>`:''}</section>`;
+    const hs=b.horses||[];
+    h+=`<section class="sec"><h3>各馬の血統適性　<span style="letter-spacing:0;font-weight:500">${esc(b.condition)}</span></h3><div class="scroll"><table><thead><tr><th>馬</th><th>父</th><th>母父</th><th>適性</th><th class="hide-sm">理由</th></tr></thead><tbody>
+      ${hs.map(x=>`<tr><td><span class="hname">${chip(x.num,fm)}${esc(x.name)}</span></td>
+        <td><span class="sire">${esc(x.sire)}</span><span class="prof">${esc(profTxt(x.sireProfile))}${x.sireScore!=null?` ／ ${x.sireScore}点`:''}</span></td>
+        <td><span class="sire">${esc(x.bms)}</span><span class="prof">${esc(profTxt(x.bmsProfile))}${x.bmsScore!=null?` ／ ${x.bmsScore}点`:''}</span></td>
+        <td><div class="apt"><b>${x.score==null?'—':esc(x.score)}</b><div class="bar"><i style="width:${Math.max(0,Math.min(100,((+x.score||0)-25)/40*100))}%"></i></div></div></td>
+        <td class="hide-sm bnote">${(x.good||[]).map(g=>`<div class="g">＋ ${esc(g.replace(/^父の/,''))}</div>`).join('')}${(x.bad||[]).map(g=>`<div class="x">－ ${esc(g.replace(/^父の/,''))}</div>`).join('')}</td></tr>`).join('')}
+      </tbody></table></div>
+      <p class="tip">適性は、種牡馬DBの芝ダ・距離・回り・馬場状態・成長型と能力値から計算した点数（父7：母父3）で、今の血統くんと同じ計算式です。母父が未登録の馬は父だけで評価しています。「道悪」は重馬場の得意度（1〜8）。</p></section>`;
+    return h;
+  }
+
+  /* ---------- 馬券 ---------- */
+  const legsHtml=(legs,fm)=>`<span class="legs">${legs.map((g,i)=>`${i?'<span class="sep">→</span>':''}<span class="grp ${g.length>1?'multi':''}">${g.map(n=>chip(n,fm)).join('')}</span>`).join('')}</span>`;
+  const legsText=legs=>legs.map(g=>g.join(',')).join(' - ');
+  function renderBet(r){
+    const fm=frameMap(r);let h='';
+    const plans=r.plans||[];const pid=S.plan[r.id]||(plans[0]&&plans[0].id);const p=plans.find(x=>x.id===pid)||plans[0];
+    if(p){
+      const total=p.tickets.reduce((a,t)=>a+t.points*t.unit,0),pts=p.tickets.reduce((a,t)=>a+t.points,0);
+      h+=`<section class="sec"><h3>推奨プラン</h3><div class="plan">
+        ${plans.length>1?`<div class="seg" role="group" aria-label="馬場ごとのプラン">${plans.map(x=>`<button class="segb" data-plan="${esc(x.id)}" aria-pressed="${x.id===p.id}">${esc(x.label)}</button>`).join('')}</div>`:''}
+        <div class="card plan">
+          <div class="axis"><small>軸</small><strong>${esc(p.axis)}</strong><span class="when">${esc(p.when)}</span></div>
+          <p style="margin:0;font-size:14px">${esc(p.why)}</p>
+        </div>
+        <div class="scroll"><table><thead><tr><th>券種</th><th>買い目</th><th class="r">点数</th><th class="r">1点</th><th class="r">金額</th></tr></thead><tbody>
+          ${p.tickets.map(t=>`<tr><td class="ttype">${esc(t.type)}${t.form?`<small>${esc(t.form)}</small>`:''}</td><td>${legsHtml(t.legs,fm)}</td><td class="r num">${t.points}</td><td class="r num">${yen(t.unit)}</td><td class="r num">${yen(t.points*t.unit)}</td></tr>`).join('')}
+          <tr class="total"><td>合計</td><td></td><td class="r num">${pts}</td><td></td><td class="r num">${yen(total)}</td></tr>
+        </tbody></table></div>
+      </div></section>`;
+    }
+    const marks=r.marks||[];
+    if(marks.length) h+=`<section class="sec"><h3>印と1000回シミュレーション</h3><div class="scroll"><table><thead><tr><th>印</th><th>馬</th><th class="r">人気</th><th class="r">単勝</th><th class="r">勝率</th><th>複勝率</th><th class="hide-sm">騎手</th></tr></thead><tbody>
+      ${marks.map(m=>`<tr><td class="mk">${esc(m.mark)}</td><td><span class="hname">${chip(m.num,fm)}${esc(m.name)}${m.ev>=1.2?'<span class="ev">妙味</span>':''}</span></td><td class="r num">${esc(m.pop)}</td><td class="r num">${esc(m.tan)}</td><td class="r num">${esc(m.winPct)}%</td><td><span class="num">${esc(m.place3Pct)}%</span><div class="bar"><i style="width:${Math.min(100,+m.place3Pct||0)}%"></i></div></td><td class="hide-sm" style="white-space:nowrap">${esc(m.jockey)}</td></tr>`).join('')}
+      </tbody></table></div><p class="tip">勝率・複勝率は、スコアに展開のぶれ（正規乱数σ=8）を加えて1000回走らせた結果です。「妙味」は勝率×単勝オッズが1.2以上の馬。</p></section>`;
+    return h;
+  }
+  function renderMyList(){
+    const box=$('mylist');if(!box)return;
+    const t=S.my.tickets||[];
+    const total=t.reduce((a,x)=>a+(+x.points||0)*(+x.unit||0),0);
+    box.innerHTML=t.length?`<div style="overflow-x:auto"><table><thead><tr><th>券種</th><th>買い目</th><th class="r">点数</th><th class="r">金額</th><th></th></tr></thead><tbody>
+      ${t.map((x,i)=>`<tr><td class="ttype">${esc(x.type)}</td><td class="num">${esc(x.text)}</td><td class="r num">${esc(x.points)}</td><td class="r num">${yen(x.points*x.unit)}</td><td class="r"><button class="del" data-del="${i}" aria-label="${esc(x.type)} ${esc(x.text)} を削除">削除</button></td></tr>`).join('')}
+      <tr class="total"><td>合計</td><td></td><td class="r num">${t.reduce((a,x)=>a+(+x.points||0),0)}</td><td class="r num">${yen(total)}</td><td></td></tr></tbody></table></div>`
+      :`<p class="empty">まだ買い目がありません。下のフォームから追加するか、推奨プランを写してください。</p>`;
+    const memo=$('f-memo');if(memo&&document.activeElement!==memo)memo.value=S.my.memo||'';
+    const off=!S.db||S.readonly;['f-add','f-copy','f-memo','f-type','f-legs','f-pts','f-unit'].forEach(id=>{const el=$(id);if(el)el.disabled=off});
+    const st=$('savestate');if(st&&off)st.textContent=S.db?'このビューでは閲覧のみです。':'claude.ai で開くと保存できます。';
+  }
+
+  /* ---------- save ---------- */
+  function save(next){
+    const r=race();if(!S.db||!r||S.readonly)return;
+    S.my=next;renderMyList();const st=$('savestate');if(st)st.textContent='保存中…';
+    const body={tickets:next.tickets,memo:next.memo||'',updatedAt:new Date().toISOString()};
+    const ref=S.db.doc(`races/${r.id}/mybets/main`);
+    S.chain=S.chain.then(()=>ref.set(body)).then(()=>{const s=$('savestate');if(s)s.textContent='保存しました';})
+      .catch(e=>{const s=$('savestate');if(e&&e.code==='invalid_argument'){S.readonly=true;renderMyList();if(s)s.textContent='このビューでは保存できません。'}else if(s)s.textContent='保存できませんでした。もう一度お試しください。'});
+  }
+
+  /* ---------- render ---------- */
+  function render(){
+    renderRail();renderHead();
+    document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===S.tab)));
+    const r=race(),panel=$('panel');
+    if(!r){panel.innerHTML=S.dbState==='none'?'':'<div class="card"><div class="skel" style="width:80%"></div></div>';return}
+    panel.innerHTML=S.tab==='track'?renderTrack(r):S.tab==='blood'?renderBlood(r):renderBet(r);
+    if(S.tab==='bet')renderMyList();
+  }
+  function select(id){
+    if(id===S.sel)return;S.sel=id;S.my={tickets:[],memo:''};
+    try{history.replaceState(null,'','#'+id)}catch(e){}
+    render();
+  }
+  function subscribeMy(){
+    if(S.unsubMy){S.unsubMy();S.unsubMy=null}
+    if(!S.db||!S.sel)return;
+    S.unsubMy=S.db.doc(`races/${S.sel}/mybets/main`).onSnapshot(snap=>{
+      const d=snap.exists?snap.data():null;S.my={tickets:(d&&d.tickets||[]).map(x=>({...x})),memo:(d&&d.memo)||''};renderMyList();
+    },()=>{});
+  }
+
+  /* ---------- events ---------- */
+  document.addEventListener('click',e=>{
+    const rc=e.target.closest('[data-race]');if(rc){select(rc.dataset.race);return}
+    const tb=e.target.closest('[data-tab]');if(tb){S.tab=tb.dataset.tab;store.set('kk-tab',S.tab);render();return}
+    const pb=e.target.closest('[data-plan]');if(pb){const r=race();S.plan[r.id]=pb.dataset.plan;render();return}
+    const del=e.target.closest('[data-del]');if(del){const i=+del.dataset.del;const t=S.my.tickets.filter((_,k)=>k!==i);save({...S.my,tickets:t});return}
+    if(e.target.id==='f-copy'){
+      const r=race();const plans=r.plans||[];const p=plans.find(x=>x.id===(S.plan[r.id]||(plans[0]&&plans[0].id)))||plans[0];if(!p)return;
+      const add=p.tickets.map(t=>({type:t.type,text:legsText(t.legs),points:t.points,unit:t.unit}));
+      save({...S.my,tickets:[...S.my.tickets,...add]});
+    }
+  });
+  document.addEventListener('submit',e=>{
+    if(e.target.id!=='myform')return;e.preventDefault();
+    const text=$('f-legs').value.trim();const pts=Math.max(1,parseInt($('f-pts').value)||1);const unit=Math.max(100,parseInt($('f-unit').value)||100);
+    if(!text){$('savestate').textContent='買い目を入力してください（例 3-13-15）';$('f-legs').focus();return}
+    save({...S.my,tickets:[...S.my.tickets,{type:$('f-type').value,text,points:pts,unit}]});
+    $('f-legs').value='';$('f-legs').focus();
+  });
+  document.addEventListener('change',e=>{if(e.target.id==='f-memo'){const v=e.target.value;if(v!==(S.my.memo||''))save({...S.my,memo:v})}});
+  document.addEventListener('keydown',e=>{
+    if(e.target.classList&&e.target.classList.contains('tab')&&(e.key==='ArrowLeft'||e.key==='ArrowRight')){const i=TABS.indexOf(S.tab);S.tab=TABS[(i+(e.key==='ArrowRight'?1:2))%3];store.set('kk-tab',S.tab);render();$('tab-'+S.tab).focus()}
+  });
+
+  /* ---------- data ---------- */
+  render();
+  try{
+    S.races=JSON.parse(document.getElementById('kk-data').textContent).sort((a,b)=>(a.status==='open'?0:1)-(b.status==='open'?0:1)||String(b.date).localeCompare(String(a.date)));
+    S.dbState='ok';$('sync').textContent='見る専用';
+    const want=(location.hash||'').slice(1);const pick=S.races.find(r=>r.id===want)||S.races[0];if(pick){S.sel=pick.id}
+  }catch(e){S.dbState='none'}
+  render();
+})();
+</script>
+
+</body>
+</html>
